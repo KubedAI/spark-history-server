@@ -1,7 +1,7 @@
 #!/bin/sh
 # ENTER AWS CREDENTIALS TO RUN THE DOCKER IMAGE LOCALLY
 
-DOCKER_IMAGE="varabonthu/spark-web-ui:1.0.5"
+DOCKER_IMAGE="varabonthu/spark-web-ui:1.0.6"
 LOG_DIR="s3a://<bucket_name>/<spark-event-logs-prefix>/"
 ENDPOINT="s3.<region>.amazonaws.com"
 
