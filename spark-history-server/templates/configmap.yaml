@@ -1,0 +1,9 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  labels:
+    {{- include "spark-history-server.labels" . | nindent 4 }}
+  name: {{ template "spark-history-server.fullname" . }}
+data:
+  spark-defaults.conf:
+{{- toYaml .Values.sparkConf | nindent 4 }}
