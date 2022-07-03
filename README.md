@@ -5,17 +5,21 @@ Helm Chart bootstraps Spark History Server in [Amazon EKS](https://aws.amazon.co
 configured to read [Spark Event Logs](https://spark.apache.org/docs/latest/monitoring.html#applying-compaction-on-rolling-event-log-files) from [AWS S3 buckets](https://aws.amazon.com/s3/) with this Helm chart.
 
 ## Prerequisites
-- Kubernetes 1.21+
-- [Helm](https://helm.sh/docs/intro/install/) 3+
-- Ensure IAM policy created to access S3 bucket where Spark Event logs stored.
-- Ensure [IRSA role](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) created to add as an annotation for service account in `values.yaml`
-- [Install eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) and run the following command to create AWS IRSA. Or use any other IaC tool to create IRSA. 
+:white_check_mark: Kubernetes 1.21+
+
+:white_check_mark: [Helm](https://helm.sh/docs/intro/install/) 3+
+
+:white_check_mark: Ensure [IRSA role](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) created to add as an annotation for service account in `values.yaml`
+
+:white_check_mark: [Install eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) and run the following command to create AWS IRSA. Or use any other IaC tool to create IRSA. 
 
 ```
 eksctl create iamserviceaccount --cluster=<eks-cluster-name> --name=<serviceAccountName> --namespace=<serviceAccountNamespace> --attach-policy-arn=<policyARN>
 ```
 
-Example: If the namespace doesn't exist already, it will be created
+**Example:**
+
+*Note: If the namespace doesn't exist already, it will be created*
 
 ```
 eksctl create iamserviceaccount --cluster=eks-demo-cluster --name=spark-history-server --namespace=spark-history-server --attach-policy-arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
@@ -35,7 +39,7 @@ sparkHistoryOpts: "-Dspark.history.fs.logDirectory=s3a://<ENTER_S3_BUCKET_NAME>/
 ```
 
 ## Get Repo Info
-    helm repo add hyper-mesh https://hyper-mesh.github.io/helm-charts
+    helm repo add hyper-mesh https://hyper-mesh.github.io/spark-history-server
     helm repo update
 
 ## Install Chart
