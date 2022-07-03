@@ -13,7 +13,8 @@
 The following step builds a docker image(`spark/spark-web-ui:latest`) using `Dockerfile` and `pom.xml` file. 
 
 ```shell
-cd spark-history-server/docker
+git clone https://github.com/Hyper-Mesh/helm-charts.git
+cd helm-charts/docker
 docker build -t varabonthu/spark-web-ui:latest . 
 ```
 
