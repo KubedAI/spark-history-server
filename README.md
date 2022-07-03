@@ -11,15 +11,20 @@ configured to read [Spark Event Logs](https://spark.apache.org/docs/latest/monit
 - Ensure [IRSA role](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) created to add as an annotation for service account in `values.yaml`
 - [Install eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) and run the following command to create AWS IRSA. Or use any other IaC tool to create IRSA. 
 
-```shell script
+```
 eksctl create iamserviceaccount --cluster=<eks-cluster-name> --name=<serviceAccountName> --namespace=<serviceAccountNamespace> --attach-policy-arn=<policyARN>
+```
 
 # Example: If the namespace doesn't exist already, it will be created
+
+```
 eksctl create iamserviceaccount --cluster=eks-demo-cluster --name=spark-history-server --namespace=spark-history-server --attach-policy-arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 ```
+
 - Update `values.yaml` with `annotations`, service account `name` and the s3 bucket name and prefix
 
-```yaml
+
+```
 serviceAccount:
   create: false
   annotations:
