@@ -15,7 +15,7 @@ configured to read [Spark Event Logs](https://spark.apache.org/docs/latest/monit
 eksctl create iamserviceaccount --cluster=<eks-cluster-name> --name=<serviceAccountName> --namespace=<serviceAccountNamespace> --attach-policy-arn=<policyARN>
 ```
 
-# Example: If the namespace doesn't exist already, it will be created
+Example: If the namespace doesn't exist already, it will be created
 
 ```
 eksctl create iamserviceaccount --cluster=eks-demo-cluster --name=spark-history-server --namespace=spark-history-server --attach-policy-arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
