@@ -4,6 +4,8 @@ Helm Chart bootstraps Spark History Server in [Amazon EKS](https://aws.amazon.co
 [Spark History Server](https://spark.apache.org/docs/latest/monitoring.html#spark-history-server-configuration-options) 
 configured to read [Spark Event Logs](https://spark.apache.org/docs/latest/monitoring.html#applying-compaction-on-rolling-event-log-files) from [AWS S3 buckets](https://aws.amazon.com/s3/) with this Helm chart.
 
+Check out the [instructions](https://github.com/Hyper-Mesh/spark-history-server/tree/main/docker) to run Spark WebUI using a local Docker container.
+
 ## Prerequisites
 :white_check_mark: Kubernetes 1.21+
 
