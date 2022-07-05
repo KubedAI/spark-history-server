@@ -72,13 +72,13 @@ Open any browser with and enter `http://localhost:18085/` to access Spark Web UI
 You should see the following home page
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hyper-mesh/spark-history-server/main/images/spark-webui-home.png" alt="example of Spark Web UI Homepage" width="100%">
+  <img src="https://github.com/Hyper-Mesh/spark-history-server/blob/main/images/spark-webui-home.png" alt="example of Spark Web UI Homepage" width="100%">
 </p>
 
 Spark Web UI Executors page
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hyper-mesh/spark-history-server/main/images/spark-webui-executors.png" alt="example of Spark Web UI Executors page" width="100%">
+  <img src="https://github.com/Hyper-Mesh/spark-history-server/blob/main/images/spark-webui-executors.png" alt="example of Spark Web UI Executors page" width="100%">
 </p>
 
 ## Community
