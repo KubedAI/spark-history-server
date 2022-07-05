@@ -1,21 +1,21 @@
 # 💥 Spark History Server (Spark Web UI) 💥
 Spark History Server is a Web user interface to monitor the metrics and performance of the spark jobs from [Apache Spark](https://spark.apache.org/).
 
-- Helm Chart bootstraps Spark History Server in [Amazon EKS](https://aws.amazon.com/eks/) Cluster or any [Kubernetes](https://kubernetes.io/) Cluster which uses [Amazon S3](https://aws.amazon.com/s3/) as a Spark event log data source using [Helm](https://helm.sh/) package manager.
+🚀 Helm Chart bootstraps Spark History Server in [Amazon EKS](https://aws.amazon.com/eks/) Cluster or any [Kubernetes](https://kubernetes.io/) Cluster which uses [Amazon S3](https://aws.amazon.com/s3/) as a Spark event log data source using [Helm](https://helm.sh/) package manager.
 
-- [Spark History Server](https://spark.apache.org/docs/latest/monitoring.html#spark-history-server-configuration-options) 
+🚀 [Spark History Server](https://spark.apache.org/docs/latest/monitoring.html#spark-history-server-configuration-options) 
 configured to read [Spark Event Logs](https://spark.apache.org/docs/latest/monitoring.html#applying-compaction-on-rolling-event-log-files) from [Amazon S3](https://aws.amazon.com/s3/) buckets with this Helm chart using IRSA.
 
-- Check out the [instructions](https://github.com/Hyper-Mesh/spark-history-server/tree/main/docker) to run Spark WebUI using a local [Docker](https://www.docker.com/) container. 
+🚀 Check out the [instructions](https://github.com/Hyper-Mesh/spark-history-server/tree/main/docker) to run Spark WebUI using a local [Docker](https://www.docker.com/) container. 
 
 ## Prerequisites
-:white_check_mark: Kubernetes 1.19+
+✅ Kubernetes 1.19+
 
-:white_check_mark: [Helm 3+](https://helm.sh/docs/intro/install/)
+✅ [Helm 3+](https://helm.sh/docs/intro/install/)
 
-:white_check_mark: Ensure [IRSA role](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) created to add as an annotation for service account in `values.yaml`.
+✅ Ensure [IRSA role](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) created to add as an annotation for service account in `values.yaml`.
 
-:white_check_mark: [Install eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) and run the following command to create AWS IRSA. Or use any other IaC tool to create IRSA. 
+✅ [Install eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) and run the following command to create AWS IRSA. Or use any other IaC tool to create IRSA. 
 
 ```
 eksctl create iamserviceaccount --cluster=<eks-cluster-name> --name=<serviceAccountName> --namespace=<serviceAccountNamespace> --attach-policy-arn=<policyARN>
