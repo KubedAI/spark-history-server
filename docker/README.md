@@ -4,7 +4,6 @@
 
 ### Pre-requisites
 
-- Install maven
 - Install git
 - Install Docker client locally
 
