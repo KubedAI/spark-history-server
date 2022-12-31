@@ -30,4 +30,4 @@ docker push [OPTIONS] NAME[:TAG]
 
 ### Run Spark History Server as a local docker container
 
-Checkout the instructions on this [shell script](docker/launch_spark_history_server_locally.sh) 
+Checkout the instructions on this [shell script](launch_spark_history_server_locally.sh) 
