@@ -4,6 +4,7 @@
 
 ### Pre-requisites
 
+- Install git
 - Install Docker client locally
 
 ### Build Docker Image
@@ -14,16 +15,20 @@ The following step builds a docker image(`spark/spark-web-ui:latest`) using `Doc
 
 ```shell
 git clone https://github.com/Hyper-Mesh/spark-history-server.git
-cd docker
-docker build -t <docker-user-id>/spark-web-ui:latest . 
+cd spark-history-server/docker
+docker build -t $USER/spark-web-ui:latest . 
 ```
 
-#### Step2: Docker Push
+Please note the user used for building the image, if you are using a different user other than the current user, you will have to pass that information.
 
-```shell script
+#### Step2: Docker Push (optional)
+
+The step is optional to push the Docker Image to your repository, you may skip this if you are running locally.
+
+```shell 
 docker push [OPTIONS] NAME[:TAG]
 ```
 
-### Run Spark History Server as a local docker contianer
+### Run Spark History Server as a local docker container
 
-Checkout the instructions on this [shell script](https://github.com/Hyper-Mesh/spark-history-server/blob/main/docker/launch_spark_history_server_locally.sh) 
+Run "sh [launch_spark_history_server_locally.sh](launch_spark_history_server_locally.sh) help" to read how to use the helper script. 
