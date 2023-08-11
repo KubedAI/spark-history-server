@@ -15,16 +15,17 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  create: false
-  annotations:
-    # IRSA role attached to service account
-    eks.amazonaws.com/role-arn: "<ENTER_IAM_ROLE_ARN>"
-  name: "<ENTER_SERVICE_ACCOUNT_NAME>"
+  create: true
+  name: spark-history-server-sa
+  # annotations:
+  #   # IRSA role attached to service account
+  #   eks.amazonaws.com/role-arn: <IRSA ROLE ARN>
+
 
 # Enter S3 bucket with Spark Event logs location.
 # Ensure IRSA roles has permissions to read the files for the given S3 bucket
-sparkHistoryOpts: "-Dspark.history.fs.logDirectory=s3a://<ENTER_S3_BUCKET_NAME>/<PREFIX_FOR_SPARK_EVENT_LOGS>/"
-
+# sparkHistoryOpts: "-Dspark.history.fs.logDirectory=s3a://<ENTER_S3_BUCKET_NAME>/<PREFIX_FOR_SPARK_EVENT_LOGS>/"
+sparkHistoryOpts: ""
 sparkConf: |-
   spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider
   spark.history.fs.eventLog.rolling.maxFilesToRetain=5
