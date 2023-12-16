@@ -6,7 +6,7 @@ Spark History Server is a Web user interface to monitor the metrics and performa
 🚀 [Spark History Server](https://spark.apache.org/docs/latest/monitoring.html#spark-history-server-configuration-options) 
 configured to read [Spark Event Logs](https://spark.apache.org/docs/latest/monitoring.html#applying-compaction-on-rolling-event-log-files) from [Amazon S3](https://aws.amazon.com/s3/) buckets with this Helm chart using IRSA.
 
-🚀 Check out the [instructions](https://github.com/Hyper-Mesh/spark-history-server/tree/main/docker) to run Spark WebUI using a local [Docker](https://www.docker.com/) container. 
+🚀 Check out the [instructions](https://github.com/kubedai/spark-history-server/tree/main/docker) to run Spark WebUI using a local [Docker](https://www.docker.com/) container. 
 
 ## Prerequisites
 :white_check_mark: Kubernetes 1.19+
@@ -42,11 +42,11 @@ sparkHistoryOpts: "-Dspark.history.fs.logDirectory=s3a://<ENTER_S3_BUCKET_NAME>/
 ```
 
 ## Get Repo Info
-    helm repo add hyper-mesh https://hyper-mesh.github.io/spark-history-server
+    helm repo add kubedai https://kubedai.github.io/spark-history-server
     helm repo update
 
 ## Install Chart
-    helm install spark-history-server hyper-mesh/spark-history-server --namespace spark-history-server
+    helm install spark-history-server kubedai/spark-history-server --namespace spark-history-server
 
 ## Uninstall Chart
     helm uninstall spark-history-server --namespace spark-history-server
@@ -72,13 +72,13 @@ Open any browser with and enter `http://localhost:18085/` to access Spark Web UI
 You should see the following home page
 
 <p align="center">
-  <img src="https://github.com/Hyper-Mesh/spark-history-server/blob/main/images/spark-webui-home.png" alt="example of Spark Web UI Homepage" width="100%">
+  <img src="https://github.com/kubedai/spark-history-server/blob/main/images/spark-webui-home.png" alt="example of Spark Web UI Homepage" width="100%">
 </p>
 
 Spark Web UI Executors page
 
 <p align="center">
-  <img src="https://github.com/Hyper-Mesh/spark-history-server/blob/main/images/spark-webui-executors.png" alt="example of Spark Web UI Executors page" width="100%">
+  <img src="https://github.com/kubedai/spark-history-server/blob/main/images/spark-webui-executors.png" alt="example of Spark Web UI Executors page" width="100%">
 </p>
 
 ## Community
