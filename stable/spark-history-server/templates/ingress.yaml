@@ -1,4 +1,5 @@
 {{- if .Values.ingress.enabled -}}
+{{- $serviceExternalPort := .Values.service.externalPort -}}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -16,6 +17,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   {{- if .Values.ingress.tls }}
   tls:
     {{- range .Values.ingress.tls }}
@@ -33,9 +35,12 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ . }}
+            pathType: Prefix
             backend:
-              serviceName: {{ include "spark-history-server.fullname" . }}
-              servicePort: {{ .Values.service.externalPort }}
+              service:
+                name: {{ include "spark-history-server.fullname" $ }}
+                port: 
+                  number: {{ $serviceExternalPort }}
           {{- end }}
     {{- end }}
 {{- end }}

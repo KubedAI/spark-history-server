@@ -55,6 +55,12 @@ service:
 ingress:
   enabled: false
   annotations: {}
+  ## Set below values when ingress is enabled
+  # ingressClassName:
+  # hosts:
+  #   - host: <url>
+  #     paths:
+  #       - <path>
 
 resources:
   limits:
