@@ -3,7 +3,20 @@ entries:
   spark-history-server:
   - apiVersion: v2
     appVersion: 1.0.6
-    created: "2023-08-11T17:51:53.232701797Z"
+    created: "2024-01-13T19:30:38.51374512Z"
+    description: A Helm chart for deploying Spark History Server in Kubernetes
+    digest: 943fe704dd654520555f6fb0ffb994103404fb92c56e7d4f4a0428cba795dd2e
+    maintainers:
+    - email: vara.bonthu@gmail.com
+      name: vara-bonthu
+    name: spark-history-server
+    type: application
+    urls:
+    - https://KubedAI.github.io/spark-history-server/spark-history-server-1.2.0.tgz
+    version: 1.2.0
+  - apiVersion: v2
+    appVersion: 1.0.6
+    created: "2024-01-13T19:30:38.513308438Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 5329d365bc48901b251af3ad3a06c0d27e63bd61614b9c07f62528a7131f8d69
     maintainers:
@@ -12,6 +25,6 @@ entries:
     name: spark-history-server
     type: application
     urls:
-    - https://Hyper-Mesh.github.io/spark-history-server/spark-history-server-1.0.0.tgz
+    - https://KubedAI.github.io/spark-history-server/spark-history-server-1.0.0.tgz
     version: 1.0.0
-generated: "2023-08-11T17:51:53.231829691Z"
+generated: "2024-01-13T19:30:38.512555508Z"
