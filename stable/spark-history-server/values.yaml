@@ -35,6 +35,9 @@ sparkConf: |-
 
 podAnnotations: {}
 
+# Extra custom labels for pods
+podLabels: {}
+
 podSecurityContext:
   runAsUser: 1000
   fsGroup: 1000
