@@ -33,6 +33,17 @@ sparkConf: |-
   spark.eventLog.enabled=true
   spark.history.ui.port=18080
 
+log4jConfig: |-
+  log4j.rootCategory=INFO, console
+  log4j.appender.console=org.apache.log4j.ConsoleAppender
+  log4j.appender.console.target=System.out
+  log4j.appender.console.layout=org.apache.log4j.PatternLayout
+  log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
+  log4j.logger.org.apache.spark=INFO
+  log4j.logger.org.apache.hadoop=INFO
+  log4j.logger.org.apache.hadoop.fs.s3a=DEBUG
+  log4j.logger.org.apache.spark.deploy.history.FsHistoryProvider=DEBUG
+
 podAnnotations: {}
 
 # Extra custom labels for pods

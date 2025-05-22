@@ -56,6 +56,9 @@ spec:
             - name: config-volume
               mountPath: /opt/spark/conf/spark-defaults.conf
               subPath: spark-defaults.conf
+            - name: config-volume
+              mountPath: /opt/spark/conf/log4j.properties
+              subPath: log4j.properties
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}
