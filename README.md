@@ -81,5 +81,27 @@ Spark Web UI Executors page
   <img src="https://github.com/kubedai/spark-history-server/blob/main/images/spark-webui-executors.png" alt="example of Spark Web UI Executors page" width="100%">
 </p>
 
+## 🧱 Contributing: Updating the Docker Image Version
+
+To update the Docker image version published to **GitHub Container Registry (GHCR)**:
+
+1. **Fork this repository**.
+2. **Bump the `appVersion:`** field in `stable/spark-history-server/Chart.yaml` to the desired version.
+3. **Raise a Pull Request (PR)** targeting the `main` branch of this repository.
+
+Once your PR is **reviewed and merged**, a GitHub Actions workflow will automatically:
+
+- Extract the updated `appVersion`
+- Build a multi-architecture Docker image (`linux/amd64`, `linux/arm64`)
+- Push the image to GHCR: [`ghcr.io/varabonthu/spark-history-server`](https://github.com/varabonthu/spark-history-server/pkgs/container/spark-history-server)
+- Tag the image with:
+  - `:<appVersion>` (e.g., `:1.3.2`)
+  - `:latest`
+- **Skip the build** if the tag already exists (to optimize CI time)
+
+You can also manually trigger this workflow from the GitHub Actions tab with an optional version override.
+
+> ✅ No need to build or push manually — the workflow handles it all post-merge or via manual trigger.
+
 ## Community
 Give us a star ⭐️ - If you are using Spark History Server, we would love a star ❤️
