@@ -8,5 +8,5 @@ data:
   spark-defaults.conf:
 {{- toYaml .Values.sparkConf | nindent 4 }}
 
-  log4j.properties: |-
+  log4j.properties:
 {{- toYaml .Values.log4jConfig | nindent 4 }}
