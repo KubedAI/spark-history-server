@@ -35,12 +35,21 @@ jobs:
         id: extract_version
         run: |
           if [ -n "${{ github.event.inputs.override_version }}" ]; then
-            VERSION=${{ github.event.inputs.override_version }}
+            VERSION="${{ github.event.inputs.override_version }}"
           else
             VERSION=$(grep '^appVersion:' stable/spark-history-server/Chart.yaml | awk '{print $2}')
           fi
-          echo "VERSION=$VERSION"
+
+          if [ -z "$VERSION" ]; then
+            echo "❌ ERROR: Version could not be determined. Exiting."
+            exit 1
+          fi
+
+          echo "✅ Using version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Debug image tag
+        run: echo "🛠️ Will tag image as: varabonthu/spark-web-ui:${{ steps.extract_version.outputs.VERSION }}"
 
       - name: Build and push multi-arch Docker image
         uses: docker/build-push-action@v5
