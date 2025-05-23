@@ -40,6 +40,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set image namespace (lowercase)
+        id: repo
+        run: |
+          owner_lower=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "owner=${owner_lower}" >> $GITHUB_OUTPUT
+
       - name: Determine image version (manual or Chart.yaml)
         id: extract_version
         run: |
@@ -58,7 +64,7 @@ jobs:
       - name: Check if image tag exists in GHCR
         id: tagcheck
         env:
-          GHCR_USER: ${{ github.repository_owner }}
+          GHCR_USER: ${{ steps.repo.outputs.owner }}
           IMAGE: ${{ env.IMAGE_NAME }}
           TAG: ${{ steps.extract_version.outputs.VERSION }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -86,8 +92,8 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.extract_version.outputs.VERSION }}
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:${{ steps.extract_version.outputs.VERSION }}
+            ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ steps.extract_version.outputs.VERSION }}
