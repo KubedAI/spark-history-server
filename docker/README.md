@@ -1,34 +1,113 @@
-# Spark UI
+# 🐳 Spark History Server Docker Image
 
-## Creating Docker image for Spark History Server
+This guide explains how to build and run the Spark History Server using Docker.
 
-### Pre-requisites
+## 📋 Prerequisites
 
-- Install git
-- Install Docker client locally
+- Git
+- Docker client
+- AWS credentials configured (if using S3)
 
-### Build Docker Image
+## 🔧 Building the Docker Image
 
-#### Step1: Docker Build
+### 1. Clone the Repository
 
-The following step builds a docker image(`spark/spark-web-ui:latest`) using `Dockerfile` and `pom.xml` file. 
-
-```shell
-git clone https://github.com/Hyper-Mesh/spark-history-server.git
+```bash
+git clone https://github.com/kubedai/spark-history-server.git
 cd spark-history-server/docker
-docker build -t $USER/spark-web-ui:latest . 
 ```
 
-Please note the user used for building the image, if you are using a different user other than the current user, you will have to pass that information.
+### 2. Build the Image
 
-#### Step2: Docker Push (optional)
+Build the Docker image using the provided Dockerfile:
 
-The step is optional to push the Docker Image to your repository, you may skip this if you are running locally.
-
-```shell 
-docker push [OPTIONS] NAME[:TAG]
+```bash
+docker build -t spark-history-server:latest .
 ```
 
-### Run Spark History Server as a local docker container
+> Note: You can replace `spark-history-server:latest` with your preferred image name and tag.
 
-Run "sh [launch_spark_history_server_locally.sh](launch_spark_history_server_locally.sh) help" to read how to use the helper script. 
+### 3. Push to Registry (Optional)
+
+If you want to push the image to a container registry:
+
+```bash
+# Tag the image for your registry
+docker tag spark-history-server:latest <your-registry>/spark-history-server:latest
+
+# Push to registry
+docker push <your-registry>/spark-history-server:latest
+```
+
+## 🚀 Running Locally
+
+### Using the Helper Script
+
+The repository includes a helper script to run the Spark History Server locally:
+
+```bash
+# Show help
+./launch_spark_history_server_locally.sh help
+
+# Run with default settings
+./launch_spark_history_server_locally.sh
+```
+
+### Manual Run
+
+You can also run the container manually:
+
+```bash
+docker run -d \
+  --name spark-history-server \
+  -p 18080:18080 \
+  -e SPARK_HISTORY_OPTS="-Dspark.history.fs.logDirectory=s3a://your-bucket/your-prefix/" \
+  spark-history-server:latest
+```
+
+## 🔍 Accessing the UI
+
+Once running, access the Spark History Server UI at:
+- http://localhost:18080
+
+## ⚙️ Configuration
+
+Key environment variables:
+- `SPARK_HISTORY_OPTS`: Spark History Server configuration options
+- `SPARK_CONF`: Additional Spark configuration properties
+
+Example with custom configuration:
+
+```bash
+docker run -d \
+  --name spark-history-server \
+  -p 18080:18080 \
+  -e SPARK_HISTORY_OPTS="-Dspark.history.fs.logDirectory=s3a://your-bucket/your-prefix/" \
+  -e SPARK_CONF="spark.history.ui.port=18080" \
+  spark-history-server:latest
+```
+
+## 🔄 Updating the Image
+
+To update to a newer version:
+
+```bash
+# Pull the latest changes
+git pull
+
+# Rebuild the image
+docker build -t spark-history-server:latest .
+```
+
+## 🧹 Cleanup
+
+To remove the container and image:
+
+```bash
+# Stop and remove container
+docker stop spark-history-server
+docker rm spark-history-server
+
+# Remove image
+docker rmi spark-history-server:latest
+```
