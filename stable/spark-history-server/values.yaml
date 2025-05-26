@@ -8,30 +8,56 @@ image:
   repository: ghcr.io/kubedai/spark-history-server
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
+  tag: <IMAGE TAG. FOR EXAMPLE aws-latest OR azure-latest>
 
-imagePullSecrets: []
+  # To pull images from the registries like ghcr.io, you need to authenticate and provide the imagePullSecrets as described here:
+  # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  # If you have already created a secret for pulling images from ghcr.io, you can specify it in property imagePullSecrets.
+  # If you don't have a secret yet, you can create one using the property pullCredentials.
+
+  # See the pullSecrets field within the container definitions of a Pod: https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#containers
+  pullSecrets: [ ]
+
+  # If you want the Helm chart to take care of the secret creation, generate a personal access token as described here:
+  # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry
+  pullCredentials:
+    enabled: false
+    secretName: ghcr-io-pull-secret
+    registry: ghcr.io
+    username: <GITHUB USERNAME>
+    password: <GITHUB PERSONAL ACCESS TOKEN>
+    email: <GITHUB EMAIL>
+
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
   create: true
   name: spark-history-server-sa
-  # annotations:
-  #   # IRSA role attached to service account
-  #   eks.amazonaws.com/role-arn: <IRSA ROLE ARN>
+  annotations: { }
 
+logStore:
+  # Enter the type of log store to use. Supported values are "s3" and "abfs".
+  # Remember
+  type: <"s3" OR "abfs" THEN PROVIDE THE CONFIGURATION FOR THE SELECTED TYPE>
 
-# Enter S3 bucket with Spark Event logs location.
-# Ensure IRSA roles has permissions to read the files for the given S3 bucket
-# sparkHistoryOpts: "-Dspark.history.fs.logDirectory=s3a://<ENTER_S3_BUCKET_NAME>/<PREFIX_FOR_SPARK_EVENT_LOGS>/"
-sparkHistoryOpts: ""
-sparkConf: |-
-  spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider
-  spark.history.fs.eventLog.rolling.maxFilesToRetain=5
-  spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem
-  spark.eventLog.enabled=true
-  spark.history.ui.port=18080
+  s3:
+    # Ensure IRSA roles has permissions to read the files for the given S3 bucket
+    bucket: <S3 BUCKET NAME>
+    eventLogsPath: <PREFIX FOR SPARK EVENT LOGS>
+    irsaRoleArn: <IRSA ROLE ARN>
+
+  abfs:
+    container: <ABFS CONTAINER NAME>
+    storageAccount: <STORAGE ACCOUNT NAME>
+    clientId: <CLIENT ID>
+    clientSecret: <CLIENT SECRET>
+    tenantId: <TENANT ID>
+    eventLogsPath: <PREFIX FOR SPARK EVENT LOGS>
+
+# Extra configuration for spark-defaults.conf
+#sparkConf: |-
+#  spark.ui.proxyBase=/history
 
 log4jConfig: |-
   log4j.rootCategory=INFO, console
@@ -44,10 +70,35 @@ log4jConfig: |-
   log4j.logger.org.apache.hadoop.fs.s3a=DEBUG
   log4j.logger.org.apache.spark.deploy.history.FsHistoryProvider=DEBUG
 
-podAnnotations: {}
+historyServer:
+  fs:
+    update:
+      interval: 10s
+    cleaner:
+      enabled: false
+      interval: 1d
+      maxAge: 7d
+      maxNum: 2147483647 #Int.MaxValue
+    endEventReparseChunkSize: 1m
+    inProgressOptimization:
+      enabled: true
+    driverlog:
+      cleaner:
+        enabled: false
+        interval: 1d
+        maxAge: 7d
+    eventLog:
+      rolling:
+        maxFilesToRetain: 2147483647 # Int.MaxValue
+  retainedApplications: 50
+  ui:
+    maxApplications: 2147483647 # Int.MaxValue
+
+
+podAnnotations: { }
 
 # Extra custom labels for pods
-podLabels: {}
+podLabels: { }
 
 podSecurityContext:
   runAsUser: 1000
@@ -56,7 +107,7 @@ podSecurityContext:
 securityContext:
   capabilities:
     drop:
-     - ALL
+      - ALL
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
@@ -68,13 +119,13 @@ service:
 
 ingress:
   enabled: false
-  annotations: {}
-  ## Set below values when ingress is enabled
-  # ingressClassName:
-  # hosts:
-  #   - host: <url>
-  #     paths:
-  #       - <path>
+  annotations: { }
+  ingressClassName: <INGRESS CLASS NAME>
+  hosts:
+    - host: <YOUR HOST NAME>
+      paths:
+        - path: "^/$"
+#         pathType: ImplementationSpecific
 
 resources:
   limits:
@@ -104,8 +155,8 @@ readinessProbe:
   successThreshold: 1
   failureThreshold: 3
 
-nodeSelector: {}
+nodeSelector: { }
 
-tolerations: []
+tolerations: [ ]
 
-affinity: {}
+affinity: { }

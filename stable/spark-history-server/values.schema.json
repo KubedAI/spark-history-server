@@ -1,0 +1,290 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "image": {
+      "type": "object",
+      "properties": {
+        "pullCredentials": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "secretName": { "type": "string" },
+            "registry": { "type": "string" },
+            "username": { "type": "string" },
+            "password": { "type": "string" },
+            "email": { "type": "string" }
+          }
+        },
+        "tag": {
+          "type": "string",
+          "not": { "pattern": "^<.*>$" },
+          "errorMessage": "image.tag must be set to a real value, not a placeholder. You can use 'aws-latest' or 'azure-latest'."
+        }
+      },
+      "required": ["tag"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "pullCredentials": {
+                "properties": {
+                  "enabled": { "const": true }
+                },
+                "required": ["enabled"]
+              }
+            },
+            "required": ["pullCredentials"]
+          },
+          "then": {
+            "properties": {
+              "pullCredentials": {
+                "required": [
+                  "secretName",
+                  "registry",
+                  "username",
+                  "password",
+                  "email"
+                ],
+                "properties": {
+                  "secretName": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "image.pullCredentials.secretName must be set to a real value, not a placeholder."
+                  },
+                  "registry": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "image.pullCredentials.registry must be set to a real value, not a placeholder."
+                  },
+                  "username": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "image.pullCredentials.username must be set to a real value, not a placeholder."
+                  },
+                  "password": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "image.pullCredentials.password must be set to a real value, not a placeholder."
+                  },
+                  "email": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "image.pullCredentials.email must be set to a real value, not a placeholder."
+                  }
+                },
+                "errorMessage": {
+                  "required": {
+                    "secretName": "image.pullCredentials.secretName is required when image.pullCredentials.enabled is true.",
+                    "registry": "image.pullCredentials.registry is required when image.pullCredentials.enabled is true.",
+                    "username": "image.pullCredentials.username is required when image.pullCredentials.enabled is true.",
+                    "password": "image.pullCredentials.password is required when image.pullCredentials.enabled is true.",
+                    "email": "image.pullCredentials.email is required when image.pullCredentials.enabled is true."
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "logStore": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["s3", "abfs"],
+          "errorMessage": "logStore.type must be either 's3' or 'abfs'."
+        },
+        "s3": {
+          "type": "object",
+          "properties": {
+            "bucket": { "type": "string" },
+            "eventLogsPath": { "type": "string" },
+            "irsaRoleArn": { "type": "string" }
+          }
+        },
+        "abfs": {
+          "type": "object",
+          "properties": {
+            "container": { "type": "string" },
+            "storageAccount": { "type": "string" },
+            "clientId": { "type": "string" },
+            "clientSecret": { "type": "string" },
+            "tenantId": { "type": "string" },
+            "eventLogsPath": { "type": "string" }
+          }
+        }
+      },
+      "required": ["type"],
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "s3" } }
+          },
+          "then": {
+            "required": ["s3"],
+            "properties": {
+              "s3": {
+                "type": "object",
+                "properties": {
+                  "bucket": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.s3.bucket must be set to a real value, not a placeholder."
+                  },
+                  "eventLogsPath": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.s3.eventLogsPath must be set to a real value, not a placeholder."
+                  },
+                  "irsaRoleArn": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.s3.irsaRoleArn must be set to a real value, not a placeholder."
+                  }
+                },
+                "required": ["bucket", "eventLogsPath", "irsaRoleArn"],
+                "errorMessage": {
+                  "required": {
+                    "bucket": "logStore.s3.bucket is required when logStore.type is 's3'.",
+                    "eventLogsPath": "logStore.s3.eventLogsPath is required when logStore.type is 's3'.",
+                    "irsaRoleArn": "logStore.s3.irsaRoleArn is required when logStore.type is 's3'."
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "abfs" } }
+          },
+          "then": {
+            "required": ["abfs"],
+            "properties": {
+              "abfs": {
+                "type": "object",
+                "properties": {
+                  "container": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.abfs.container must be set to a real value, not a placeholder."
+                  },
+                  "storageAccount": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.abfs.storageAccount must be set to a real value, not a placeholder."
+                  },
+                  "clientId": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.abfs.clientId must be set to a real value, not a placeholder."
+                  },
+                  "clientSecret": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.abfs.clientSecret must be set to a real value, not a placeholder."
+                  },
+                  "tenantId": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.abfs.tenantId must be set to a real value, not a placeholder."
+                  },
+                  "eventLogsPath": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.abfs.eventLogsPath must be set to a real value, not a placeholder."
+                  }
+                },
+                "required": [
+                  "container",
+                  "storageAccount",
+                  "clientId",
+                  "clientSecret",
+                  "tenantId",
+                  "eventLogsPath"
+                ],
+                "errorMessage": {
+                  "required": {
+                    "container": "logStore.abfs.container is required when logStore.type is 'abfs'.",
+                    "storageAccount": "logStore.abfs.storageAccount is required when logStore.type is 'abfs'.",
+                    "clientId": "logStore.abfs.clientId is required when logStore.type is 'abfs'.",
+                    "clientSecret": "logStore.abfs.clientSecret is required when logStore.type is 'abfs'.",
+                    "tenantId": "logStore.abfs.tenantId is required when logStore.type is 'abfs'.",
+                    "eventLogsPath": "logStore.abfs.eventLogsPath is required when logStore.type is 'abfs'."
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errorMessage": {
+        "required": {
+          "type": "logStore.type is required and must be either 's3' or 'abfs'."
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "annotations": { "type": "object" },
+        "ingressClassName": { "type": "string" },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": { "type": "string" },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": { "type": "string" },
+                    "pathType": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "enabled": { "const": true } },
+            "required": ["enabled"]
+          },
+          "then": {
+            "required": ["ingressClassName", "hosts"],
+            "properties": {
+              "ingressClassName": {
+                "type": "string",
+                "not": { "pattern": "^<.*>$" },
+                "errorMessage": "ingress.ingressClassName must be set to a real value, not a placeholder."
+              },
+              "hosts": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "host": {
+                      "type": "string",
+                      "not": { "pattern": "^<.*>$" },
+                      "errorMessage": "ingress.hosts[].host must be set to a real value, not a placeholder."
+                    }
+                  },
+                  "required": ["host"]
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
