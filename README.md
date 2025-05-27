@@ -65,7 +65,8 @@ helm repo update
 # Install the chart
 helm install spark-history-server kubedai/spark-history-server \
   --namespace spark-history-server \
-  --create-namespace
+  --create-namespace \
+  -f values.yaml
 ```
 
 ## 🔍 Accessing Spark WebUI
