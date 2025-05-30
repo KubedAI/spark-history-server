@@ -67,3 +67,12 @@ Return the appropriate apiVersion for deployment.
 {{- define "spark-history-server.deployment.apiVersion" -}}
 {{- print "apps/v1" -}}
 {{- end -}}
+
+{{/*
+Creates the content of the secret for image pull credentials.
+*/}}
+{{- define "imagePullSecret" }}
+{{- with .Values.image.pullCredentials }}
+{{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" .registry .username .password .email (printf "%s:%s" .username .password | b64enc) | b64enc }}
+{{- end }}
+{{- end }}

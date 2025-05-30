@@ -5,8 +5,39 @@ metadata:
     {{- include "spark-history-server.labels" . | nindent 4 }}
   name: {{ template "spark-history-server.fullname" . }}
 data:
-  spark-defaults.conf:
-{{- toYaml .Values.sparkConf | nindent 4 }}
+  spark-defaults.conf: |-
+    {{- if eq .Values.logStore.type "s3" }}
+    {{- with .Values.logStore.s3 }}
+    spark.history.fs.logDirectory=s3a://{{ .bucket }}/{{ .eventLogsPath }}
+    spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider
+    spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem
+    {{- end }}
+    {{- else if eq .Values.logStore.type "abfs" }}
+    {{- with .Values.logStore.abfs }}
+    spark.history.fs.logDirectory=abfss://{{ .container }}@{{ .storageAccount }}.dfs.core.windows.net/{{ .eventLogsPath }}
+    spark.hadoop.fs.azure.account.auth.type.{{ .storageAccount }}.dfs.core.windows.net=OAuth
+    spark.hadoop.fs.azure.account.oauth.provider.type.{{ .storageAccount }}.dfs.core.windows.net=org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider
+    spark.hadoop.fs.azure.account.oauth2.client.id.{{ .storageAccount }}.dfs.core.windows.net={{ .clientId }}
+    spark.hadoop.fs.azure.account.oauth2.client.secret.{{ .storageAccount }}.dfs.core.windows.net={{ .clientSecret }}
+    spark.hadoop.fs.azure.account.oauth2.client.endpoint.{{ .storageAccount }}.dfs.core.windows.net=https://login.microsoftonline.com/{{ .tenantId }}/oauth2/token
+    {{- end }}
+    {{- end }}
+    spark.history.fs.update.interval={{ .Values.historyServer.fs.update.interval }}
+    spark.history.fs.cleaner.enabled={{ .Values.historyServer.fs.cleaner.enabled }}
+    spark.history.fs.cleaner.interval={{ .Values.historyServer.fs.cleaner.interval }}
+    spark.history.fs.cleaner.maxAge={{ .Values.historyServer.fs.cleaner.maxAge }}
+    spark.history.fs.cleaner.maxNum={{ .Values.historyServer.fs.cleaner.maxNum | int}}
+    spark.history.fs.endEventReparseChunkSize={{ .Values.historyServer.fs.endEventReparseChunkSize }}
+    spark.history.fs.inProgressOptimization.enabled={{ .Values.historyServer.fs.inProgressOptimization.enabled }}
+    spark.history.fs.driverlog.cleaner.enabled={{ .Values.historyServer.fs.driverlog.cleaner.enabled }}
+    spark.history.fs.driverlog.cleaner.interval={{ .Values.historyServer.fs.driverlog.cleaner.interval }}
+    spark.history.fs.driverlog.cleaner.maxAge={{ .Values.historyServer.fs.driverlog.cleaner.maxAge }}
+    spark.history.fs.eventLog.rolling.maxFilesToRetain={{ .Values.historyServer.fs.eventLog.rolling.maxFilesToRetain | int}}
+    spark.history.ui.maxApplications={{ .Values.historyServer.ui.maxApplications | int }}
+    spark.history.ui.port={{ .Values.service.internalPort }}
+    {{- if .Values.sparkConf }}
+    {{- toYaml .Values.sparkConf | nindent 4 }}
+    {{- end }}
 
   log4j.properties:
 {{- toYaml .Values.log4jConfig | nindent 4 }}

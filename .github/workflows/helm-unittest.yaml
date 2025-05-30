@@ -1,0 +1,34 @@
+name: Helm Unit Tests
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+    paths:
+      - 'stable/spark-history-server/**'
+      - '.github/workflows/helm-unittest.yaml'
+  workflow_dispatch:
+
+jobs:
+  helm-unittest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.3.0
+
+      - name: Install helm-unittest plugin
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+
+      - name: Run helm unittest
+        run: helm unittest -d stable/spark-history-server
+
+      - name: Upload .debug directory (rendered test templates) as artifact for troubleshooting
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-debug
+          path: .debug
+          if-no-files-found: ignore
+          include-hidden-files: true

@@ -26,10 +26,18 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- if or .Values.image.pullSecrets (gt (len .Values.image.pullSecrets) 0) .Values.image.pullCredentials.enabled }}
       imagePullSecrets:
+        {{- with .Values.image.pullSecrets }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.image.pullCredentials.enabled }}
+        {{- with .Values.image.pullCredentials }}
+        - name: {{ .secretName }}
+        {{- end }}
+        {{- end }}
       {{- end }}
+
       serviceAccountName: {{ include "spark-history-server.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -37,19 +45,19 @@ spec:
         - name: config-volume
           configMap:
             name: {{ template "spark-history-server.fullname" . }}
+        - name: spark-logs
+          emptyDir: { }
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:  # Launches Spark history server from Docker container
+          command: # Launches Spark history server from a Docker container
             - '/opt/spark/sbin/start-history-server.sh'
           env:
             - name: SPARK_NO_DAEMONIZE
               value: "false"
-            - name: SPARK_HISTORY_OPTS
-              value: {{ .Values.sparkHistoryOpts }}
             - name: SPARK_CONF_DIR
               value: /opt/spark/conf
           volumeMounts:
@@ -59,6 +67,8 @@ spec:
             - name: config-volume
               mountPath: /opt/spark/conf/log4j.properties
               subPath: log4j.properties
+            - name: spark-logs
+              mountPath: /opt/spark/logs
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}

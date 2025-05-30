@@ -1,0 +1,35 @@
+suite: "Spark config ingress tests"
+templates: [ templates/ingress.yaml ]
+
+testDefaults: &testDefaults
+  # We set the properties below to satisfy the schema validation.
+  image:
+    tag: not-used
+  logStore:
+    type: s3
+    s3:
+      bucket: not-used
+      eventLogsPath: not-used
+      irsaRoleArn: not-used
+
+tests:
+  - it: should provide the correct S3 configuration
+    set:
+      <<: *testDefaults
+      ingress:
+        enabled: true
+        ingressClassName: my-ingress-class
+        hosts:
+          - host: history-server.example.com
+            paths:
+              - path: /
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+      - equal:
+          path: spec.rules[0].host
+          value: history-server.example.com

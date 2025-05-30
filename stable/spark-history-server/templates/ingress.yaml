@@ -34,8 +34,8 @@ spec:
       http:
         paths:
           {{- range .paths }}
-          - path: {{ . }}
-            pathType: Prefix
+          - path: {{ .path }}
+            pathType: {{ default "Prefix" .pathType }}
             backend:
               service:
                 name: {{ include "spark-history-server.fullname" $ }}
