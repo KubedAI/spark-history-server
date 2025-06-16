@@ -1,0 +1,107 @@
+suite: "Spark config map test"
+templates: [templates/configmap.yaml]
+tests:
+  - it: should provide the correct S3 configuration
+    set:
+      image:
+        tag: not-used
+      logStore:
+        type: s3
+        s3:
+          bucket: my-spark-logs
+          eventLogsPath: spark-events/
+          irsaRoleArn: not-used
+    asserts:
+      - equal:
+          path: data
+          value:
+            log4j.properties: |-
+              log4j.rootCategory=INFO, console
+              log4j.appender.console=org.apache.log4j.ConsoleAppender
+              log4j.appender.console.target=System.out
+              log4j.appender.console.layout=org.apache.log4j.PatternLayout
+              log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
+              log4j.logger.org.apache.spark=INFO
+              log4j.logger.org.apache.hadoop=INFO
+              log4j.logger.org.apache.hadoop.fs.s3a=DEBUG
+              log4j.logger.org.apache.spark.deploy.history.FsHistoryProvider=DEBUG
+            spark-defaults.conf: |-
+              spark.history.fs.logDirectory=s3a://my-spark-logs/spark-events/
+              spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider
+              spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem
+              spark.history.fs.update.interval=10s
+              spark.history.fs.cleaner.enabled=false
+              spark.history.fs.cleaner.interval=1d
+              spark.history.fs.cleaner.maxAge=7d
+              spark.history.fs.cleaner.maxNum=2147483647
+              spark.history.fs.endEventReparseChunkSize=1m
+              spark.history.fs.inProgressOptimization.enabled=true
+              spark.history.fs.driverlog.cleaner.enabled=false
+              spark.history.fs.driverlog.cleaner.interval=1d
+              spark.history.fs.driverlog.cleaner.maxAge=7d
+              spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
+              spark.history.ui.maxApplications=2147483647
+              spark.history.ui.port=18080
+  - it: should provide the correct abfs configuration
+    set:
+      image:
+        tag: not-used
+      logStore:
+        type: abfs
+        abfs:
+          container: my-container
+          storageAccount: mystorageaccount
+          clientId: my-client-id
+          clientSecret: my-client-secret
+          tenantId: my-tenant-id
+          eventLogsPath: spark-events
+    asserts:
+      - equal:
+          path: data
+          value:
+            log4j.properties: |-
+              log4j.rootCategory=INFO, console
+              log4j.appender.console=org.apache.log4j.ConsoleAppender
+              log4j.appender.console.target=System.out
+              log4j.appender.console.layout=org.apache.log4j.PatternLayout
+              log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
+              log4j.logger.org.apache.spark=INFO
+              log4j.logger.org.apache.hadoop=INFO
+              log4j.logger.org.apache.hadoop.fs.s3a=DEBUG
+              log4j.logger.org.apache.spark.deploy.history.FsHistoryProvider=DEBUG
+            spark-defaults.conf: |-
+              spark.history.fs.logDirectory=abfss://my-container@mystorageaccount.dfs.core.windows.net/spark-events
+              spark.hadoop.fs.azure.account.auth.type.mystorageaccount.dfs.core.windows.net=OAuth
+              spark.hadoop.fs.azure.account.oauth.provider.type.mystorageaccount.dfs.core.windows.net=org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider
+              spark.hadoop.fs.azure.account.oauth2.client.id.mystorageaccount.dfs.core.windows.net=my-client-id
+              spark.hadoop.fs.azure.account.oauth2.client.secret.mystorageaccount.dfs.core.windows.net=my-client-secret
+              spark.hadoop.fs.azure.account.oauth2.client.endpoint.mystorageaccount.dfs.core.windows.net=https://login.microsoftonline.com/my-tenant-id/oauth2/token
+              spark.history.fs.update.interval=10s
+              spark.history.fs.cleaner.enabled=false
+              spark.history.fs.cleaner.interval=1d
+              spark.history.fs.cleaner.maxAge=7d
+              spark.history.fs.cleaner.maxNum=2147483647
+              spark.history.fs.endEventReparseChunkSize=1m
+              spark.history.fs.inProgressOptimization.enabled=true
+              spark.history.fs.driverlog.cleaner.enabled=false
+              spark.history.fs.driverlog.cleaner.interval=1d
+              spark.history.fs.driverlog.cleaner.maxAge=7d
+              spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
+              spark.history.ui.maxApplications=2147483647
+              spark.history.ui.port=18080
+  - it: should include custom spark configuration if provided
+    set:
+      image:
+        tag: not-used
+      logStore:
+        type: s3
+        s3:
+          bucket: not-used
+          eventLogsPath: not-used
+          irsaRoleArn: not-used
+      sparkConf: |-
+        spark.ui.proxyBase=/history
+    asserts:
+      - matchRegex:
+          path: data['spark-defaults.conf']
+          pattern: "spark\\.ui\\.proxyBase=/history"
