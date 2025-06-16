@@ -3,9 +3,9 @@ entries:
   spark-history-server:
   - apiVersion: v2
     appVersion: 1.4.0
-    created: "2025-06-16T07:27:54.75522544Z"
+    created: "2025-06-16T07:27:59.780855502Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
-    digest: d9254e2e434b41f3fdc89e4138f3c2c3f7af7e24ece888fcd48e99a0a2254cdc
+    digest: a373d150871fd62a15ccc8e4c3df8459133f4efafb7fa4a994e151126f2c8ab6
     home: https://github.com/kubedai/spark-history-server
     keywords:
     - spark
@@ -26,7 +26,7 @@ entries:
     version: 1.4.0
   - apiVersion: v2
     appVersion: 1.3.2
-    created: "2025-06-16T07:27:54.754433276Z"
+    created: "2025-06-16T07:27:59.780101398Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 4f42c09ab2ddb7c23688c51641826a53934b3ffdc9e1f3298b19e53ffa99a002
     home: https://github.com/kubedai/spark-history-server
@@ -49,7 +49,7 @@ entries:
     version: 1.3.2
   - apiVersion: v2
     appVersion: 1.3.1
-    created: "2025-06-16T07:27:54.753601214Z"
+    created: "2025-06-16T07:27:59.779630436Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 6cfe6a26031d931d35e9959b3d8e1fd47bd684884d85aa6bf0eca8bbf080d225
     maintainers:
@@ -62,7 +62,7 @@ entries:
     version: 1.3.1
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2025-06-16T07:27:54.751805042Z"
+    created: "2025-06-16T07:27:59.779172257Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: d1f6ce6d062ae9a1420487c173359540f78e845e22fe85ab14d1283870de2d06
     maintainers:
@@ -75,7 +75,7 @@ entries:
     version: 1.3.0
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2025-06-16T07:27:54.751320684Z"
+    created: "2025-06-16T07:27:59.778674534Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 89f843137def426653bb034991454ad3d29b5e0badd5f9d07190d3ac19167b3b
     maintainers:
@@ -88,7 +88,7 @@ entries:
     version: 1.2.0
   - apiVersion: v2
     appVersion: 1.0.6
-    created: "2025-06-16T07:27:54.75085944Z"
+    created: "2025-06-16T07:27:59.777557619Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 5329d365bc48901b251af3ad3a06c0d27e63bd61614b9c07f62528a7131f8d69
     maintainers:
@@ -99,4 +99,4 @@ entries:
     urls:
     - https://KubedAI.github.io/spark-history-server/spark-history-server-1.0.0.tgz
     version: 1.0.0
-generated: "2025-06-16T07:27:54.750256721Z"
+generated: "2025-06-16T07:27:59.776642053Z"
