@@ -43,9 +43,9 @@ logStore:
 
   s3:
     # Ensure IRSA roles has permissions to read the files for the given S3 bucket
-    bucket: <S3 BUCKET NAME>
-    eventLogsPath: <PREFIX FOR SPARK EVENT LOGS>
-    irsaRoleArn: <IRSA ROLE ARN>
+    bucket: "example-bucket"  # This is just a placeholder for publishing
+    eventLogsPath: "spark-events/"  # This is just a placeholder for publishing
+    irsaRoleArn: "arn:aws:iam::123456789012:role/example-role"  # This is just a placeholder for publishing
 
   abfs:
     container: <ABFS CONTAINER NAME>
