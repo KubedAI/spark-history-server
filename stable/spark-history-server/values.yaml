@@ -8,7 +8,7 @@ image:
   repository: ghcr.io/kubedai/spark-history-server
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: <IMAGE TAG. FOR EXAMPLE aws-latest OR azure-latest>
+  tag: aws-latest # or "azure-latest" or your specific version
 
   # To pull images from the registries like ghcr.io, you need to authenticate and provide the imagePullSecrets as described here:
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -39,7 +39,7 @@ serviceAccount:
 logStore:
   # Enter the type of log store to use. Supported values are "s3" and "abfs".
   # Remember
-  type: <"s3" OR "abfs" THEN PROVIDE THE CONFIGURATION FOR THE SELECTED TYPE>
+  type: "s3"  # or "abfs" depending on which cloud provider you're targeting
 
   s3:
     # Ensure IRSA roles has permissions to read the files for the given S3 bucket
