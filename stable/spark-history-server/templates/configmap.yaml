@@ -39,5 +39,5 @@ data:
     {{- toYaml .Values.sparkConf | nindent 4 }}
     {{- end }}
 
-  log4j.properties:
+  log4j2.properties:
 {{- toYaml .Values.log4jConfig | nindent 4 }}

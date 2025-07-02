@@ -15,16 +15,23 @@ tests:
       - equal:
           path: data
           value:
-            log4j.properties: |-
-              log4j.rootCategory=INFO, console
-              log4j.appender.console=org.apache.log4j.ConsoleAppender
-              log4j.appender.console.target=System.out
-              log4j.appender.console.layout=org.apache.log4j.PatternLayout
-              log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
-              log4j.logger.org.apache.spark=INFO
-              log4j.logger.org.apache.hadoop=INFO
-              log4j.logger.org.apache.hadoop.fs.s3a=DEBUG
-              log4j.logger.org.apache.spark.deploy.history.FsHistoryProvider=DEBUG
+            log4j2.properties: |-
+              rootLogger.level = info
+              rootLogger.appenderRef.stdout.ref = console
+              appender.console.type = Console
+              appender.console.name = console
+              appender.console.target = SYSTEM_ERR
+              appender.console.layout.type = PatternLayout
+              appender.console.layout.pattern = %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n%ex
+
+              logger.spark.name = org.apache.spark
+              logger.spark.level = INFO
+              logger.hadoop.name = org.apache.hadoop
+              logger.hadoop.level = INFO
+              logger.s3a.name = org.apache.hadoop.fs.s3a
+              logger.s3a.level = DEBUG
+              logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
+              logger.history.level = DEBUG
             spark-defaults.conf: |-
               spark.history.fs.logDirectory=s3a://my-spark-logs/spark-events/
               spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider
@@ -59,16 +66,23 @@ tests:
       - equal:
           path: data
           value:
-            log4j.properties: |-
-              log4j.rootCategory=INFO, console
-              log4j.appender.console=org.apache.log4j.ConsoleAppender
-              log4j.appender.console.target=System.out
-              log4j.appender.console.layout=org.apache.log4j.PatternLayout
-              log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
-              log4j.logger.org.apache.spark=INFO
-              log4j.logger.org.apache.hadoop=INFO
-              log4j.logger.org.apache.hadoop.fs.s3a=DEBUG
-              log4j.logger.org.apache.spark.deploy.history.FsHistoryProvider=DEBUG
+            log4j2.properties: |-
+              rootLogger.level = info
+              rootLogger.appenderRef.stdout.ref = console
+              appender.console.type = Console
+              appender.console.name = console
+              appender.console.target = SYSTEM_ERR
+              appender.console.layout.type = PatternLayout
+              appender.console.layout.pattern = %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n%ex
+
+              logger.spark.name = org.apache.spark
+              logger.spark.level = INFO
+              logger.hadoop.name = org.apache.hadoop
+              logger.hadoop.level = INFO
+              logger.s3a.name = org.apache.hadoop.fs.s3a
+              logger.s3a.level = DEBUG
+              logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
+              logger.history.level = DEBUG
             spark-defaults.conf: |-
               spark.history.fs.logDirectory=abfss://my-container@mystorageaccount.dfs.core.windows.net/spark-events
               spark.hadoop.fs.azure.account.auth.type.mystorageaccount.dfs.core.windows.net=OAuth
