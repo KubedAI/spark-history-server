@@ -80,7 +80,21 @@ log4jConfig: |-
   logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
   logger.history.level = DEBUG
 
+persistence: # enabled if historyServer.store.hybridStore.enabled is true
+  enabled: false
+  mountPath: "/mnt/shs-cache"
+  storageClass: ""
+  size: "10Gi"
+
 historyServer:
+  store: # corresponds to spark.history.store.* settings
+    path: "/mnt/shs-cache"
+    maxDiskUsage: 9g
+    hybridStore:
+      enabled: false
+      maxMemoryUsage: 2g
+      diskBackend: ROCKSDB
+      serializer: PROTOBUF
   fs:
     update:
       interval: 10s

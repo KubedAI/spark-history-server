@@ -39,6 +39,14 @@ data:
     spark.history.fs.eventLog.rolling.maxFilesToRetain={{ .Values.historyServer.fs.eventLog.rolling.maxFilesToRetain | int}}
     spark.history.ui.maxApplications={{ .Values.historyServer.ui.maxApplications | int }}
     spark.history.ui.port={{ .Values.service.internalPort }}
+    {{- if .Values.historyServer.store.hybridStore.enabled }}
+    spark.history.store.hybridStore.enabled={{ .Values.historyServer.store.hybridStore.enabled }}
+    spark.history.store.hybridStore.maxMemoryUsage={{ .Values.historyServer.store.hybridStore.maxMemoryUsage }}
+    spark.history.store.hybridStore.diskBackend={{ .Values.historyServer.store.hybridStore.diskBackend }}
+    spark.history.store.hybridStore.serializer={{ .Values.historyServer.store.hybridStore.serializer }}
+    spark.history.store.path={{ .Values.historyServer.store.path }}
+    spark.history.store.maxDiskUsage={{ .Values.historyServer.store.maxDiskUsage }}
+    {{- end }}
     {{- if .Values.sparkConf }}
     {{- toYaml .Values.sparkConf | nindent 4 }}
     {{- end }}
