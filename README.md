@@ -218,6 +218,41 @@ Key configuration options in `values.yaml`:
 | `sparkHistoryOpts`      | Spark history server options | `""`                                   |
 | `resources`             | Pod resource requests/limits | See values.yaml                        |
 
+
+## 🛠️ Local Development
+
+This project uses [Task](https://taskfile.dev/) to simplify development workflows. Here's how to get started:
+
+```bash
+# Install Task
+brew install go-task  # macOS
+# See https://taskfile.dev/installation/ for other platforms
+
+# Run Helm unit tests
+task unittest
+
+# Lint the Helm chart
+task lint
+
+# Create a local Kind cluster
+task create-cluster
+
+# Build the Docker image locally
+task build-docker
+# Or specify cloud platform:
+task build-docker CLOUD_PLATFORM=azure
+
+# Install the chart to your local Kind cluster
+task install-chart
+# Or with custom values:
+task install-chart VALUES_FILE=my-values.yaml
+
+# Clean up (removes binaries and deletes cluster)
+task clean
+```
+
+The Taskfile automatically manages dependencies like Helm and Kind, installing them locally in the `.bin` directory when needed.
+
 ## 🤝 Community
 
 Give us a star ⭐️ if you find this project useful!

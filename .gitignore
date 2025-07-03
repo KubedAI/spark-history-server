@@ -1,3 +1,5 @@
 .idea
 docker/.env
 .debug
+.aider*
+.bin
