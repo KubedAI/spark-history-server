@@ -1,0 +1,151 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  HELM_VERSION: v3.18.3
+  KIND_VERSION: v0.29.0
+  OS: '{{OS}}'
+  ARCH: '{{ARCH}}'
+  BIN_DIR: .bin
+  KUBECONFIG_PATH: ./kubeconfig.yaml
+
+tasks:
+  unittest:
+    desc: Run Helm unit tests for spark-history-server
+    interactive: true
+    deps: [ensure-helm]
+    cmds:
+      - "{{.BIN_DIR}}/helm unittest -d stable/spark-history-server"
+      
+  lint:
+    desc: Lint Helm charts
+    interactive: true
+    deps: [ensure-helm]
+    cmds:
+      - "{{.BIN_DIR}}/helm lint stable/spark-history-server"
+      
+  ensure-helm:
+    internal: true
+    cmds:
+      - task: install-helm
+    status:
+      - test -f {{.BIN_DIR}}/helm
+      
+  install-helm:
+    desc: Install Helm binary to local .bin directory
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - curl -fsSL -o helm.tar.gz https://get.helm.sh/helm-{{.HELM_VERSION}}-{{OS}}-{{ARCH}}.tar.gz
+      - tar -zxvf helm.tar.gz
+      - mv {{OS}}-{{ARCH}}/helm {{.BIN_DIR}}/
+      - rm -rf helm.tar.gz {{OS}}-{{ARCH}}
+      - echo "Helm {{.HELM_VERSION}} installed to {{.BIN_DIR}}/helm"
+    status:
+      - test -f {{.BIN_DIR}}/helm
+      
+  clean:
+    desc: Remove the bin directory, all installed binaries, and delete the Kind cluster
+    cmds:
+      - task: delete-cluster
+        vars: { CLUSTER_NAME: spark-history-server }
+        ignore_error: true
+      - rm -rf {{.BIN_DIR}}
+      - rm  {{.KUBECONFIG_PATH}}
+      - echo "🧹 Removed {{.BIN_DIR}} directory"
+      
+  install-kind:
+    desc: Install Kind binary to local .bin directory
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - curl -fsSL -o {{.BIN_DIR}}/kind https://kind.sigs.k8s.io/dl/{{.KIND_VERSION}}/kind-{{OS}}-{{ARCH}}
+      - chmod +x {{.BIN_DIR}}/kind
+      - echo "Kind {{.KIND_VERSION}} installed to {{.BIN_DIR}}/kind"
+    status:
+      - test -f {{.BIN_DIR}}/kind
+      
+  ensure-kind:
+    internal: true
+    cmds:
+      - task: install-kind
+    status:
+      - test -f {{.BIN_DIR}}/kind
+      
+  delete-cluster:
+    desc: Delete the Kind cluster
+    deps: [ensure-kind]
+    vars:
+      CLUSTER_NAME: spark-history-server
+    cmds:
+      - "{{.BIN_DIR}}/kind delete cluster --name {{.CLUSTER_NAME}}"
+      - echo "🗑️ Kind cluster '{{.CLUSTER_NAME}}' deleted"
+    status:
+      - "! {{.BIN_DIR}}/kind get clusters 2>/dev/null | grep -q '^{{.CLUSTER_NAME}}$'"
+      
+  create-cluster:
+    desc: Create a Kind cluster for spark-history-server
+    deps: [ensure-kind]
+    vars:
+      CLUSTER_NAME: spark-history-server
+    cmds:
+      - |
+        {{.BIN_DIR}}/kind create cluster --name {{.CLUSTER_NAME}} --kubeconfig {{.KUBECONFIG_PATH}} --config - <<EOF
+        kind: Cluster
+        apiVersion: kind.x-k8s.io/v1alpha4
+        nodes:
+        - role: control-plane
+          kubeadmConfigPatches:
+          - |
+            kind: InitConfiguration
+            nodeRegistration:
+              kubeletExtraArgs:
+                node-labels: "ingress-ready=true"
+          extraPortMappings:
+          - containerPort: 80
+            hostPort: 80
+            protocol: TCP
+          - containerPort: 443
+            hostPort: 443
+            protocol: TCP
+        EOF
+      - echo "Kind cluster '{{.CLUSTER_NAME}}' created with kubeconfig at {{.KUBECONFIG_PATH}}"
+    status:
+      - "{{.BIN_DIR}}/kind get clusters | grep -q '^{{.CLUSTER_NAME}}$'"
+      
+  build-docker:
+    desc: Build Docker image locally
+    vars:
+      CLOUD_PLATFORM: '{{.CLOUD_PLATFORM | default "aws"}}'
+      VERSION: local
+    cmds:
+      - echo "Building Docker image for {{.CLOUD_PLATFORM}} platform, version {{.VERSION}}"
+      - docker build -t spark-history-server:{{.CLOUD_PLATFORM}}-{{.VERSION}} 
+        --build-arg CLOUD_PLATFORM={{.CLOUD_PLATFORM}} 
+        ./docker
+  
+  install-chart:
+    desc: Install Spark History Server Helm chart to local Kind cluster
+    deps: 
+      - ensure-helm
+      - create-cluster
+    vars:
+      RELEASE_NAME: spark-history-server
+      NAMESPACE: default
+      VALUES_FILE: '{{.VALUES_FILE | default ""}}'
+    cmds:
+      - |
+        VALUES_ARGS=""
+        if [ -n "{{.VALUES_FILE}}" ]; then
+          VALUES_ARGS="-f {{.VALUES_FILE}}"
+        fi
+      - |
+        KUBECONFIG={{.KUBECONFIG_PATH}} {{.BIN_DIR}}/helm upgrade --install {{.RELEASE_NAME}} \
+          --namespace {{.NAMESPACE}} \
+          --create-namespace \
+          $VALUES_ARGS \
+          ./stable/spark-history-server
+      - echo "🚀 Spark History Server chart installed as '{{.RELEASE_NAME}}' in namespace '{{.NAMESPACE}}'"
+      - echo "✅ Installation complete!"
+      - echo "📋 To connect to your cluster:"
+      - echo "   export KUBECONFIG={{.KUBECONFIG_PATH}}"
+      - echo "   kubectl get pods -n {{.NAMESPACE}}"
