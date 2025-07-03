@@ -76,9 +76,9 @@ log4jConfig: |-
   logger.hadoop.name = org.apache.hadoop
   logger.hadoop.level = INFO
   logger.s3a.name = org.apache.hadoop.fs.s3a
-  logger.s3a.level = DEBUG
+  logger.s3a.level = INFO
   logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
-  logger.history.level = DEBUG
+  logger.history.level = INFO
 
 persistence: # enabled if historyServer.store.hybridStore.enabled is true
   enabled: false
