@@ -37,9 +37,9 @@ serviceAccount:
   annotations: { }
 
 logStore:
-  # Enter the type of log store to use. Supported values are "s3" and "abfs".
+  # Enter the type of log store to use. Supported values are "s3", "abfs", and "local".
   # Remember
-  type: "s3"  # or "abfs" depending on which cloud provider you're targeting
+  type: "s3"  # or "abfs" or "local" depending on which storage you're targeting
 
   s3:
     # Ensure IRSA roles has permissions to read the files for the given S3 bucket
@@ -54,6 +54,9 @@ logStore:
     clientSecret: <CLIENT SECRET>
     tenantId: <TENANT ID>
     eventLogsPath: <PREFIX FOR SPARK EVENT LOGS>
+    
+  local:
+    directory: "/home"
 
 # Extra configuration for spark-defaults.conf
 #sparkConf: |-

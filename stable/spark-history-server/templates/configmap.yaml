@@ -21,6 +21,10 @@ data:
     spark.hadoop.fs.azure.account.oauth2.client.secret.{{ .storageAccount }}.dfs.core.windows.net={{ .clientSecret }}
     spark.hadoop.fs.azure.account.oauth2.client.endpoint.{{ .storageAccount }}.dfs.core.windows.net=https://login.microsoftonline.com/{{ .tenantId }}/oauth2/token
     {{- end }}
+    {{- else if eq .Values.logStore.type "local" }}
+    {{- with .Values.logStore.local }}
+    spark.history.fs.logDirectory=file://{{ .directory }}
+    {{- end }}
     {{- end }}
     spark.history.fs.update.interval={{ .Values.historyServer.fs.update.interval }}
     spark.history.fs.cleaner.enabled={{ .Values.historyServer.fs.cleaner.enabled }}

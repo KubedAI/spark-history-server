@@ -93,8 +93,8 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["s3", "abfs"],
-          "errorMessage": "logStore.type must be either 's3' or 'abfs'."
+          "enum": ["s3", "abfs", "local"],
+          "errorMessage": "logStore.type must be either 's3', 'abfs', or 'local'."
         },
         "s3": {
           "type": "object",
@@ -113,6 +113,12 @@
             "clientSecret": { "type": "string" },
             "tenantId": { "type": "string" },
             "eventLogsPath": { "type": "string" }
+          }
+        },
+        "local": {
+          "type": "object",
+          "properties": {
+            "directory": { "type": "string" }
           }
         }
       },
@@ -213,6 +219,32 @@
                     "clientSecret": "logStore.abfs.clientSecret is required when logStore.type is 'abfs'.",
                     "tenantId": "logStore.abfs.tenantId is required when logStore.type is 'abfs'.",
                     "eventLogsPath": "logStore.abfs.eventLogsPath is required when logStore.type is 'abfs'."
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "local" } }
+          },
+          "then": {
+            "required": ["local"],
+            "properties": {
+              "local": {
+                "type": "object",
+                "properties": {
+                  "directory": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.local.directory must be set to a real value, not a placeholder."
+                  }
+                },
+                "required": ["directory"],
+                "errorMessage": {
+                  "required": {
+                    "directory": "logStore.local.directory is required when logStore.type is 'local'."
                   }
                 }
               }
