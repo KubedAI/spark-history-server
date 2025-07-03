@@ -1,0 +1,144 @@
+suite: Test hybrid store configuration
+templates:
+  - statefulset.yaml
+  - configmap.yaml
+tests:
+  - it: should not create statefulset when hybrid store is disabled
+    set:
+      historyServer.store.hybridStore.enabled: false
+    template: statefulset.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create statefulset when hybrid store is enabled
+    set:
+      historyServer.store.hybridStore.enabled: true
+    template: statefulset.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: StatefulSet
+      - equal:
+          path: spec.serviceName
+          value: RELEASE-NAME-spark-history-server
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].name
+          value: store-volume
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].mountPath
+          value: /mnt/shs-cache
+      - equal:
+          path: spec.volumeClaimTemplates[0].metadata.name
+          value: store-volume
+      - equal:
+          path: spec.volumeClaimTemplates[0].spec.resources.requests.storage
+          value: 10Gi
+
+  - it: should allow customizing storage size for hybrid store
+    set:
+      historyServer.store.hybridStore.enabled: true
+      persistence:
+        size: "20Gi"
+    template: statefulset.yaml
+    asserts:
+      - equal:
+          path: spec.volumeClaimTemplates[0].spec.resources.requests.storage
+          value: "20Gi"
+
+  - it: should allow setting storage class name for hybrid store
+    set:
+      historyServer.store.hybridStore.enabled: true
+      persistence:
+        storageClass: premium-ssd
+    template: statefulset.yaml
+    asserts:
+      - equal:
+          path: spec.volumeClaimTemplates[0].spec.storageClassName
+          value: "premium-ssd"
+
+  - it: should allow configuring access modes for hybrid store
+    set:
+      historyServer.store.hybridStore.enabled: true
+      historyServer.store.hybridStore.persistentVolume.accessMode: ReadWriteOnce
+    template: statefulset.yaml
+    asserts:
+      - equal:
+          path: spec.volumeClaimTemplates[0].spec.accessModes[0]
+          value: ReadWriteOnce
+
+  - it: should allow configuring replica count for statefulset
+    set:
+      historyServer.store.hybridStore.enabled: true
+      replicaCount: 2
+    template: statefulset.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+
+  - it: should allow setting resource requests and limits for statefulset
+    set:
+      historyServer.store.hybridStore.enabled: true
+      resources:
+        requests:
+          cpu: 100m
+          memory: 1G
+        limits:
+          cpu: 200m
+          memory: 2G
+    template: statefulset.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 100m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 1G
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 200m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 2G
+
+  - it: should allow customizing mount path for hybrid store
+    set:
+      historyServer.store.hybridStore.enabled: true
+      persistence:
+        mountPath: /custom/mount/path
+    template: statefulset.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].mountPath
+          value: /custom/mount/path
+
+  - it: should configure hybrid store settings in configmap when enabled
+    set:
+      historyServer.store.hybridStore.enabled: true
+      historyServer.store.hybridStore.maxMemoryUsage: 3g
+      historyServer.store.hybridStore.diskBackend: ROCKSDB
+      historyServer.store.hybridStore.serializer: PROTOBUF
+      historyServer.store.path: /custom/path
+      historyServer.store.maxDiskUsage: 8g
+    template: configmap.yaml
+    asserts:
+      - matchRegex:
+          path: data["spark-defaults.conf"]
+          pattern: spark.history.store.hybridStore.enabled=true
+      - matchRegex:
+          path: data["spark-defaults.conf"]
+          pattern: spark.history.store.hybridStore.maxMemoryUsage=3g
+      - matchRegex:
+          path: data["spark-defaults.conf"]
+          pattern: spark.history.store.hybridStore.diskBackend=ROCKSDB
+      - matchRegex:
+          path: data["spark-defaults.conf"]
+          pattern: spark.history.store.hybridStore.serializer=PROTOBUF
+      - matchRegex:
+          path: data["spark-defaults.conf"]
+          pattern: spark.history.store.path=/custom/path
+      - matchRegex:
+          path: data["spark-defaults.conf"]
+          pattern: spark.history.store.maxDiskUsage=8g

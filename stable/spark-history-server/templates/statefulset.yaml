@@ -1,17 +1,13 @@
-{{- if not .Values.historyServer.store.hybridStore.enabled }}
+{{- if and .Values.historyServer.store.hybridStore.enabled}}
 apiVersion: {{ template "spark-history-server.deployment.apiVersion" . }}
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ template "spark-history-server.fullname" . }}
   labels:
     {{- include "spark-history-server.labels" . | nindent 4 }}
 spec:
+  serviceName: {{ template "spark-history-server.fullname" . }}
   replicas: {{ .Values.replicaCount }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 50%
-      maxSurge: 1
   selector:
     matchLabels:
       {{- include "spark-history-server.selectorLabels" . | nindent 6 }}
@@ -38,6 +34,7 @@ spec:
         {{- end }}
         {{- end }}
       {{- end }}
+
       serviceAccountName: {{ include "spark-history-server.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -46,6 +43,8 @@ spec:
           configMap:
             name: {{ template "spark-history-server.fullname" . }}
         - name: spark-logs
+          emptyDir: { }
+        - name: tmp-dir
           emptyDir: { }
       containers:
         - name: {{ .Chart.Name }}
@@ -60,6 +59,8 @@ spec:
               value: "false"
             - name: SPARK_CONF_DIR
               value: /opt/spark/conf
+            - name: TMPDIR
+              value: "/tmp"
           volumeMounts:
             - name: config-volume
               mountPath: /opt/spark/conf/spark-defaults.conf
@@ -69,6 +70,10 @@ spec:
               subPath: log4j2.properties
             - name: spark-logs
               mountPath: /opt/spark/logs
+            - name: store-volume
+              mountPath: {{ .Values.persistence.mountPath }}
+            - name: tmp-dir
+              mountPath: /tmp
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}
@@ -93,4 +98,19 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: store-volume
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        {{- if .Values.persistence.storageClass }}
+        {{- if (eq "-" .Values.persistence.storageClass) }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: "{{ .Values.persistence.storageClass }}"
+        {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
 {{- end }}

@@ -88,6 +88,88 @@
         }
       ]
     },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "mountPath": { "type": "string" },
+        "storageClass": { "type": "string" },
+        "size": { "type": "string" }
+      }
+    },
+    "historyServer": {
+      "type": "object",
+      "properties": {
+        "store": {
+          "type": "object",
+          "properties": {
+            "path": { "type": "string" },
+            "maxDiskUsage": { "type": "string" },
+            "hybridStore": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "maxMemoryUsage": { "type": "string" },
+                "diskBackend": { 
+                  "type": "string",
+                  "enum": ["ROCKSDB", "LEVELDB"]
+                },
+                "serializer": { 
+                  "type": "string",
+                  "enum": ["PROTOBUF", "KRYO"]
+                }
+              },
+              "required": ["enabled"],
+              "allOf": [
+                {
+                  "if": {
+                    "properties": { "enabled": { "const": true } },
+                    "required": ["enabled"]
+                  },
+                  "then": {
+                    "required": ["maxMemoryUsage", "diskBackend", "serializer"],
+                    "properties": {
+                      "maxMemoryUsage": {
+                        "type": "string",
+                        "pattern": "^[0-9]+[kmgt]?$",
+                        "errorMessage": "historyServer.store.hybridStore.maxMemoryUsage must be a valid size (e.g., '2g', '1024m')."
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "hybridStore": {
+                    "properties": { "enabled": { "const": true } },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["hybridStore"]
+              },
+              "then": {
+                "required": ["path", "maxDiskUsage"],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "errorMessage": "historyServer.store.path is required when hybridStore is enabled."
+                  },
+                  "maxDiskUsage": {
+                    "type": "string",
+                    "pattern": "^[0-9]+[kmgt]?$",
+                    "errorMessage": "historyServer.store.maxDiskUsage must be a valid size (e.g., '9g', '10240m')."
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
     "logStore": {
       "type": "object",
       "properties": {
