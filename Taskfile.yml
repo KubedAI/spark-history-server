@@ -1,7 +1,7 @@
 # https://taskfile.dev
 
 version: '3'
-
+silent: true
 vars:
   HELM_VERSION: v3.18.3
   KIND_VERSION: v0.29.0
@@ -85,6 +85,7 @@ tasks:
   create-cluster:
     desc: Create a Kind cluster for spark-history-server
     deps: [ensure-kind]
+    silent: false
     vars:
       CLUSTER_NAME: spark-history-server
     cmds:
@@ -109,6 +110,9 @@ tasks:
             protocol: TCP
         EOF
       - echo "Kind cluster '{{.CLUSTER_NAME}}' created with kubeconfig at {{.KUBECONFIG_PATH}}"
+      - echo "📋 To connect to your cluster:"
+      - echo "   export KUBECONFIG={{.KUBECONFIG_PATH}}"
+      - echo "   kubectl get pods -n {{.NAMESPACE}}"
     status:
       - "{{.BIN_DIR}}/kind get clusters | grep -q '^{{.CLUSTER_NAME}}$'"
       
@@ -131,21 +135,29 @@ tasks:
     vars:
       RELEASE_NAME: spark-history-server
       NAMESPACE: default
-      VALUES_FILE: '{{.VALUES_FILE | default ""}}'
+      VALUES_FILE: '{{.VALUES_FILE | default "tests/local-helm-values.yaml"}}'
     cmds:
-      - |
-        VALUES_ARGS=""
-        if [ -n "{{.VALUES_FILE}}" ]; then
-          VALUES_ARGS="-f {{.VALUES_FILE}}"
-        fi
       - |
         KUBECONFIG={{.KUBECONFIG_PATH}} {{.BIN_DIR}}/helm upgrade --install {{.RELEASE_NAME}} \
           --namespace {{.NAMESPACE}} \
           --create-namespace \
-          $VALUES_ARGS \
+          -f {{.VALUES_FILE}} \
           ./stable/spark-history-server
       - echo "🚀 Spark History Server chart installed as '{{.RELEASE_NAME}}' in namespace '{{.NAMESPACE}}'"
       - echo "✅ Installation complete!"
       - echo "📋 To connect to your cluster:"
       - echo "   export KUBECONFIG={{.KUBECONFIG_PATH}}"
       - echo "   kubectl get pods -n {{.NAMESPACE}}"
+  
+  uninstall-chart:
+    desc: Uninstall Spark History Server Helm chart from local Kind cluster
+    deps: [ensure-helm]
+    silent: true
+    vars:
+      RELEASE_NAME: spark-history-server
+      NAMESPACE: default
+    cmds:
+      - |
+        KUBECONFIG={{.KUBECONFIG_PATH}} {{.BIN_DIR}}/helm uninstall {{.RELEASE_NAME}} \
+          --namespace {{.NAMESPACE}}
+      - echo "🗑️ Spark History Server chart '{{.RELEASE_NAME}}' uninstalled from namespace '{{.NAMESPACE}}'"

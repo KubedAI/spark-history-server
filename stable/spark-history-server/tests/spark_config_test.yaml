@@ -119,3 +119,47 @@ tests:
       - matchRegex:
           path: data['spark-defaults.conf']
           pattern: "spark\\.ui\\.proxyBase=/history"
+  - it: should provide the correct local configuration
+    set:
+      image:
+        tag: not-used
+      logStore:
+        type: local
+        local:
+          directory: "/spark-logs"
+    asserts:
+      - equal:
+          path: data
+          value:
+            log4j2.properties: |-
+              rootLogger.level = info
+              rootLogger.appenderRef.stdout.ref = console
+              appender.console.type = Console
+              appender.console.name = console
+              appender.console.target = SYSTEM_ERR
+              appender.console.layout.type = PatternLayout
+              appender.console.layout.pattern = %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n%ex
+
+              logger.spark.name = org.apache.spark
+              logger.spark.level = INFO
+              logger.hadoop.name = org.apache.hadoop
+              logger.hadoop.level = INFO
+              logger.s3a.name = org.apache.hadoop.fs.s3a
+              logger.s3a.level = DEBUG
+              logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
+              logger.history.level = DEBUG
+            spark-defaults.conf: |-
+              spark.history.fs.logDirectory=file:///spark-logs
+              spark.history.fs.update.interval=10s
+              spark.history.fs.cleaner.enabled=false
+              spark.history.fs.cleaner.interval=1d
+              spark.history.fs.cleaner.maxAge=7d
+              spark.history.fs.cleaner.maxNum=2147483647
+              spark.history.fs.endEventReparseChunkSize=1m
+              spark.history.fs.inProgressOptimization.enabled=true
+              spark.history.fs.driverlog.cleaner.enabled=false
+              spark.history.fs.driverlog.cleaner.interval=1d
+              spark.history.fs.driverlog.cleaner.maxAge=7d
+              spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
+              spark.history.ui.maxApplications=2147483647
+              spark.history.ui.port=18080
