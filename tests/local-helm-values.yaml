@@ -1,2 +1,6 @@
 logStore:
   type: "local"
+historyServer:
+  store: # corresponds to spark.history.store.* settings
+    hybridStore:
+      enabled: true

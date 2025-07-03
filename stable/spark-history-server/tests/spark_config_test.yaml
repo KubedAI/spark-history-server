@@ -29,9 +29,9 @@ tests:
               logger.hadoop.name = org.apache.hadoop
               logger.hadoop.level = INFO
               logger.s3a.name = org.apache.hadoop.fs.s3a
-              logger.s3a.level = DEBUG
+              logger.s3a.level = INFO
               logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
-              logger.history.level = DEBUG
+              logger.history.level = INFO
             spark-defaults.conf: |-
               spark.history.fs.logDirectory=s3a://my-spark-logs/spark-events/
               spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider
@@ -80,9 +80,9 @@ tests:
               logger.hadoop.name = org.apache.hadoop
               logger.hadoop.level = INFO
               logger.s3a.name = org.apache.hadoop.fs.s3a
-              logger.s3a.level = DEBUG
+              logger.s3a.level = INFO
               logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
-              logger.history.level = DEBUG
+              logger.history.level = INFO
             spark-defaults.conf: |-
               spark.history.fs.logDirectory=abfss://my-container@mystorageaccount.dfs.core.windows.net/spark-events
               spark.hadoop.fs.azure.account.auth.type.mystorageaccount.dfs.core.windows.net=OAuth
@@ -145,9 +145,9 @@ tests:
               logger.hadoop.name = org.apache.hadoop
               logger.hadoop.level = INFO
               logger.s3a.name = org.apache.hadoop.fs.s3a
-              logger.s3a.level = DEBUG
+              logger.s3a.level = INFO
               logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
-              logger.history.level = DEBUG
+              logger.history.level = INFO
             spark-defaults.conf: |-
               spark.history.fs.logDirectory=file:///spark-logs
               spark.history.fs.update.interval=10s
