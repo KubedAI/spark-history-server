@@ -14,8 +14,8 @@
         <hadoop.version>3.4.1</hadoop.version>
         <awssdk.version>1.12.783</awssdk.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <jackson.version>2.10.5</jackson.version>
-        <jackson.databind.version>2.12.7.1</jackson.databind.version>
+        <jackson.version>2.18.1</jackson.version>
+        <jackson.databind.version>2.18.1</jackson.databind.version>
     </properties>
 
     <dependencies>
