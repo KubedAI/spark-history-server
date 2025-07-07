@@ -91,13 +91,25 @@ persistence: # enabled if historyServer.store.hybridStore.enabled is true
   storageClass: ""
   size: "30Gi"
 
+# Spark daemon configuration - JVM memory for History Server process
+sparkDaemon:
+  memory: "4g"  # SPARK_DAEMON_MEMORY - Must be larger than historyServer.store.hybridStore.maxMemoryUsage
+                # Example: If maxMemoryUsage=6g, set this to 8g+ to allow overhead
+  javaOpts: >-
+    -XX:+UseG1GC
+    -XX:MaxGCPauseMillis=200
+    -XX:G1HeapRegionSize=32m
+    -XX:+UseStringDeduplication
+    -XX:+UseCompressedOops
+    -XX:+UseCompressedClassPointers
+
 historyServer:
   store: # corresponds to spark.history.store.* settings
     path: "/mnt/shs-cache"
     maxDiskUsage: 9g
     hybridStore:
       enabled: false
-      maxMemoryUsage: 2g
+      maxMemoryUsage: 2g  # Must be smaller than sparkDaemon.memory above
       diskBackend: ROCKSDB
       serializer: PROTOBUF
   fs:
@@ -131,18 +143,8 @@ podAnnotations: { }
 # Extra custom labels for pods
 podLabels: { }
 
-# Environment variables - Addressing GitHub issue #47 (SPARK_DAEMON_MEMORY)
-env:
-  - name: SPARK_DAEMON_MEMORY
-    value: "4g"  # Increased from default 2g for better performance
-  - name: SPARK_DAEMON_JAVA_OPTS
-    value: >-
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=200
-      -XX:G1HeapRegionSize=32m
-      -XX:+UseStringDeduplication
-      -XX:+UseCompressedOops
-      -XX:+UseCompressedClassPointers
+# Environment variables - Automatically configured from sparkDaemon settings above
+env: []  # Will be populated by templates using sparkDaemon configuration
 
 podSecurityContext:
   runAsUser: 1000

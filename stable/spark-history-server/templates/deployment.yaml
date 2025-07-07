@@ -60,6 +60,10 @@ spec:
               value: "false"
             - name: SPARK_CONF_DIR
               value: /opt/spark/conf
+            - name: SPARK_DAEMON_MEMORY
+              value: {{ .Values.sparkDaemon.memory | quote }}
+            - name: SPARK_DAEMON_JAVA_OPTS
+              value: {{ .Values.sparkDaemon.javaOpts | quote }}
             {{- if .Values.env }}
             {{- toYaml .Values.env | nindent 12 }}
             {{- end }}
