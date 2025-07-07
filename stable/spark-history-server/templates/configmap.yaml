@@ -27,6 +27,9 @@ data:
     {{- end }}
     {{- end }}
     spark.history.fs.update.interval={{ .Values.historyServer.fs.update.interval }}
+    {{- if .Values.historyServer.fs.numReplayThreads }}
+    spark.history.fs.numReplayThreads={{ .Values.historyServer.fs.numReplayThreads }}
+    {{- end }}
     spark.history.fs.cleaner.enabled={{ .Values.historyServer.fs.cleaner.enabled }}
     spark.history.fs.cleaner.interval={{ .Values.historyServer.fs.cleaner.interval }}
     spark.history.fs.cleaner.maxAge={{ .Values.historyServer.fs.cleaner.maxAge }}
@@ -38,6 +41,7 @@ data:
     spark.history.fs.driverlog.cleaner.maxAge={{ .Values.historyServer.fs.driverlog.cleaner.maxAge }}
     spark.history.fs.eventLog.rolling.maxFilesToRetain={{ .Values.historyServer.fs.eventLog.rolling.maxFilesToRetain | int}}
     spark.history.ui.maxApplications={{ .Values.historyServer.ui.maxApplications | int }}
+    spark.history.retainedApplications={{ .Values.historyServer.retainedApplications | int }}
     spark.history.ui.port={{ .Values.service.internalPort }}
     {{- if .Values.historyServer.store.hybridStore.enabled }}
     spark.history.store.hybridStore.enabled={{ .Values.historyServer.store.hybridStore.enabled }}
@@ -48,7 +52,7 @@ data:
     spark.history.store.maxDiskUsage={{ .Values.historyServer.store.maxDiskUsage }}
     {{- end }}
     {{- if .Values.sparkConf }}
-    {{- toYaml .Values.sparkConf | nindent 4 }}
+{{ .Values.sparkConf | nindent 4 }}
     {{- end }}
 
   log4j2.properties:

@@ -37,6 +37,7 @@ tests:
               spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider
               spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem
               spark.history.fs.update.interval=10s
+              spark.history.fs.numReplayThreads=4
               spark.history.fs.cleaner.enabled=false
               spark.history.fs.cleaner.interval=1d
               spark.history.fs.cleaner.maxAge=7d
@@ -48,7 +49,15 @@ tests:
               spark.history.fs.driverlog.cleaner.maxAge=7d
               spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
               spark.history.ui.maxApplications=2147483647
+              spark.history.retainedApplications=50
               spark.history.ui.port=18080
+
+              # Storage backend optimizations for S3/ABFS (non-conflicting settings)
+              spark.hadoop.fs.s3a.connection.maximum=200
+              spark.hadoop.fs.s3a.threads.max=50
+              spark.hadoop.fs.s3a.max.total.tasks=100
+              spark.hadoop.fs.s3a.connection.establish.timeout=10000
+              spark.hadoop.fs.s3a.connection.timeout=20000
   - it: should provide the correct abfs configuration
     set:
       image:
@@ -91,6 +100,7 @@ tests:
               spark.hadoop.fs.azure.account.oauth2.client.secret.mystorageaccount.dfs.core.windows.net=my-client-secret
               spark.hadoop.fs.azure.account.oauth2.client.endpoint.mystorageaccount.dfs.core.windows.net=https://login.microsoftonline.com/my-tenant-id/oauth2/token
               spark.history.fs.update.interval=10s
+              spark.history.fs.numReplayThreads=4
               spark.history.fs.cleaner.enabled=false
               spark.history.fs.cleaner.interval=1d
               spark.history.fs.cleaner.maxAge=7d
@@ -102,7 +112,15 @@ tests:
               spark.history.fs.driverlog.cleaner.maxAge=7d
               spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
               spark.history.ui.maxApplications=2147483647
+              spark.history.retainedApplications=50
               spark.history.ui.port=18080
+
+              # Storage backend optimizations for S3/ABFS (non-conflicting settings)
+              spark.hadoop.fs.s3a.connection.maximum=200
+              spark.hadoop.fs.s3a.threads.max=50
+              spark.hadoop.fs.s3a.max.total.tasks=100
+              spark.hadoop.fs.s3a.connection.establish.timeout=10000
+              spark.hadoop.fs.s3a.connection.timeout=20000
   - it: should include custom spark configuration if provided
     set:
       image:
@@ -151,6 +169,7 @@ tests:
             spark-defaults.conf: |-
               spark.history.fs.logDirectory=file:///spark-logs
               spark.history.fs.update.interval=10s
+              spark.history.fs.numReplayThreads=4
               spark.history.fs.cleaner.enabled=false
               spark.history.fs.cleaner.interval=1d
               spark.history.fs.cleaner.maxAge=7d
@@ -162,4 +181,12 @@ tests:
               spark.history.fs.driverlog.cleaner.maxAge=7d
               spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
               spark.history.ui.maxApplications=2147483647
+              spark.history.retainedApplications=50
               spark.history.ui.port=18080
+
+              # Storage backend optimizations for S3/ABFS (non-conflicting settings)
+              spark.hadoop.fs.s3a.connection.maximum=200
+              spark.hadoop.fs.s3a.threads.max=50
+              spark.hadoop.fs.s3a.max.total.tasks=100
+              spark.hadoop.fs.s3a.connection.establish.timeout=10000
+              spark.hadoop.fs.s3a.connection.timeout=20000

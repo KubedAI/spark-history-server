@@ -58,9 +58,14 @@ logStore:
   local:
     directory: "/home"
 
-# Extra configuration for spark-defaults.conf
-#sparkConf: |-
-#  spark.ui.proxyBase=/history
+# Extra configuration for spark-defaults.conf - Storage backend optimizations only
+sparkConf: |-
+  # Storage backend optimizations for S3/ABFS (non-conflicting settings)
+  spark.hadoop.fs.s3a.connection.maximum=200
+  spark.hadoop.fs.s3a.threads.max=50
+  spark.hadoop.fs.s3a.max.total.tasks=100
+  spark.hadoop.fs.s3a.connection.establish.timeout=10000
+  spark.hadoop.fs.s3a.connection.timeout=20000
 
 log4jConfig: |-
   rootLogger.level = info
@@ -84,7 +89,19 @@ persistence: # enabled if historyServer.store.hybridStore.enabled is true
   enabled: false
   mountPath: "/mnt/shs-cache"
   storageClass: ""
-  size: "10Gi"
+  size: "30Gi"
+
+# Spark daemon configuration - JVM memory for History Server process
+sparkDaemon:
+  memory: "4g"  # SPARK_DAEMON_MEMORY - Must be larger than historyServer.store.hybridStore.maxMemoryUsage
+                # Example: If maxMemoryUsage=6g, set this to 8g+ to allow overhead
+  javaOpts: >-
+    -XX:+UseG1GC
+    -XX:MaxGCPauseMillis=200
+    -XX:G1HeapRegionSize=32m
+    -XX:+UseStringDeduplication
+    -XX:+UseCompressedOops
+    -XX:+UseCompressedClassPointers
 
 historyServer:
   store: # corresponds to spark.history.store.* settings
@@ -92,7 +109,7 @@ historyServer:
     maxDiskUsage: 9g
     hybridStore:
       enabled: false
-      maxMemoryUsage: 2g
+      maxMemoryUsage: 2g  # Must be smaller than sparkDaemon.memory above
       diskBackend: ROCKSDB
       serializer: PROTOBUF
   fs:
@@ -104,6 +121,8 @@ historyServer:
       maxAge: 7d
       maxNum: 2147483647 #Int.MaxValue
     endEventReparseChunkSize: 1m
+    # Issue #46: Increase replay threads from default 25% to fixed 4 threads
+    numReplayThreads: 4
     inProgressOptimization:
       enabled: true
     driverlog:
@@ -114,7 +133,7 @@ historyServer:
     eventLog:
       rolling:
         maxFilesToRetain: 2147483647 # Int.MaxValue
-  retainedApplications: 50
+  retainedApplications: 50 # Number of applications to retain UI data for in the cache
   ui:
     maxApplications: 2147483647 # Int.MaxValue
 
@@ -123,6 +142,9 @@ podAnnotations: { }
 
 # Extra custom labels for pods
 podLabels: { }
+
+# Environment variables - Automatically configured from sparkDaemon settings above
+env: []  # Will be populated by templates using sparkDaemon configuration
 
 podSecurityContext:
   runAsUser: 1000
@@ -153,29 +175,31 @@ ingress:
 
 resources:
   limits:
-    cpu: 200m
-    memory: 2G
+    # cpu: removed per GitHub issue #41 - allow CPU bursting
+    memory: 6Gi  # Increased from 2G per GitHub issue #47
   requests:
-    cpu: 100m
-    memory: 1G
+    cpu: 500m     # Increased from 100m for better minimum allocation
+    memory: 4Gi   # Increased from 1G to support larger SPARK_DAEMON_MEMORY
 
 livenessProbe:
   httpGet:
     path: /
     port: 18080
     scheme: HTTP
-  timeoutSeconds: 5
+  initialDelaySeconds: 60  # SHS startup can be slow with optimized memory
+  timeoutSeconds: 10       # Increased from 5 for better reliability
   periodSeconds: 30
   successThreshold: 1
-  failureThreshold: 3
+  failureThreshold: 5      # More tolerant of temporary failures
 
 readinessProbe:
   httpGet:
     path: /
     port: 18080
     scheme: HTTP
-  timeoutSeconds: 5
-  periodSeconds: 30
+  initialDelaySeconds: 30  # Allow time for SHS initialization
+  timeoutSeconds: 10       # Increased from 5
+  periodSeconds: 15        # More frequent checks for faster recovery
   successThreshold: 1
   failureThreshold: 3
 
