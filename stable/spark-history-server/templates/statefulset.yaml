@@ -61,6 +61,9 @@ spec:
               value: /opt/spark/conf
             - name: TMPDIR
               value: "/tmp"
+            {{- if .Values.env }}
+            {{- toYaml .Values.env | nindent 12 }}
+            {{- end }}
           volumeMounts:
             - name: config-volume
               mountPath: /opt/spark/conf/spark-defaults.conf
