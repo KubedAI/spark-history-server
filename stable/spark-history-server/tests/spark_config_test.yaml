@@ -49,6 +49,7 @@ tests:
               spark.history.fs.driverlog.cleaner.maxAge=7d
               spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
               spark.history.ui.maxApplications=2147483647
+              spark.history.retainedApplications=50
               spark.history.ui.port=18080
 
               # Storage backend optimizations for S3/ABFS (non-conflicting settings)
@@ -111,6 +112,7 @@ tests:
               spark.history.fs.driverlog.cleaner.maxAge=7d
               spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
               spark.history.ui.maxApplications=2147483647
+              spark.history.retainedApplications=50
               spark.history.ui.port=18080
 
               # Storage backend optimizations for S3/ABFS (non-conflicting settings)
@@ -179,6 +181,7 @@ tests:
               spark.history.fs.driverlog.cleaner.maxAge=7d
               spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
               spark.history.ui.maxApplications=2147483647
+              spark.history.retainedApplications=50
               spark.history.ui.port=18080
 
               # Storage backend optimizations for S3/ABFS (non-conflicting settings)

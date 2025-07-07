@@ -34,7 +34,7 @@ tests:
           value: store-volume
       - equal:
           path: spec.volumeClaimTemplates[0].spec.resources.requests.storage
-          value: 10Gi
+          value: 30Gi
 
   - it: should allow customizing storage size for hybrid store
     set:

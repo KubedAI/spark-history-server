@@ -89,7 +89,7 @@ persistence: # enabled if historyServer.store.hybridStore.enabled is true
   enabled: false
   mountPath: "/mnt/shs-cache"
   storageClass: ""
-  size: "10Gi"
+  size: "30Gi"
 
 historyServer:
   store: # corresponds to spark.history.store.* settings
@@ -121,7 +121,7 @@ historyServer:
     eventLog:
       rolling:
         maxFilesToRetain: 2147483647 # Int.MaxValue
-  retainedApplications: 100  # Increased from 50 for better performance
+  retainedApplications: 50 # Number of applications to retain UI data for in the cache
   ui:
     maxApplications: 2147483647 # Int.MaxValue
 
