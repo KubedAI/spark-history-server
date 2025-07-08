@@ -209,3 +209,21 @@ nodeSelector: { }
 tolerations: [ ]
 
 affinity: { }
+
+# Additional volumes to add to the pod
+volumes: []
+  # Example:
+  # - name: extra-volume
+  #   persistentVolumeClaim:
+  #     claimName: my-pvc
+  # - name: config-volume
+  #   configMap:
+  #     name: my-configmap
+
+# Additional volumeMounts to add to the container
+volumeMounts: []
+# Example:
+# - name: extra-volume
+#   mountPath: /mnt/extra
+# - name: config-volume
+#   mountPath: /etc/config

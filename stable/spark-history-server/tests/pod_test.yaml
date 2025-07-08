@@ -1,0 +1,157 @@
+suite: test pod configuration
+templates:
+  - deployment.yaml
+  - statefulset.yaml
+tests:
+  - it: should add custom volumes to deployment when specified
+    template: deployment.yaml
+    set:
+      historyServer.store.hybridStore.enabled: false
+      volumes:
+        - name: test-volume
+          emptyDir: {}
+        - name: config-volume-custom
+          configMap:
+            name: test-config
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-spark-history-server
+      - equal:
+          path: spec.template.spec.volumes[2].name
+          value: test-volume
+      - equal:
+          path: spec.template.spec.volumes[2].emptyDir
+          value: {}
+      - equal:
+          path: spec.template.spec.volumes[3].name
+          value: config-volume-custom
+      - equal:
+          path: spec.template.spec.volumes[3].configMap.name
+          value: test-config
+
+  - it: should add custom volumes to statefulset when specified
+    template: statefulset.yaml
+    set:
+      historyServer.store.hybridStore.enabled: true
+      volumes:
+        - name: test-volume
+          emptyDir: {}
+    asserts:
+      - isKind:
+          of: StatefulSet
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-spark-history-server
+      - equal:
+          path: spec.template.spec.volumes[3].name
+          value: test-volume
+      - equal:
+          path: spec.template.spec.volumes[3].emptyDir
+          value: {}
+
+  - it: should add custom volumeMounts to statefulset when specified
+    template: statefulset.yaml
+    set:
+      historyServer.store.hybridStore.enabled: true
+      volumeMounts:
+        - name: test-volume
+          mountPath: /test
+    asserts:
+      - isKind:
+          of: StatefulSet
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-spark-history-server
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[5].name
+          value: test-volume
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[5].mountPath
+          value: /test
+
+  - it: should add custom volumeMounts to deployment when specified
+    template: deployment.yaml
+    set:
+      historyServer.store.hybridStore.enabled: false
+      volumeMounts:
+        - name: test-volume
+          mountPath: /test
+          readOnly: true
+        - name: config-volume-custom
+          mountPath: /config
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-spark-history-server
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].name
+          value: test-volume
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].mountPath
+          value: /test
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].readOnly
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[4].name
+          value: config-volume-custom
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[4].mountPath
+          value: /config
+
+  - it: should add both volumes and volumeMounts to deployment when specified
+    template: deployment.yaml
+    set:
+      historyServer.store.hybridStore.enabled: false
+      volumes:
+        - name: shared-data
+          emptyDir: {}
+      volumeMounts:
+        - name: shared-data
+          mountPath: /shared-data
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-spark-history-server
+      - equal:
+          path: spec.template.spec.volumes[2].name
+          value: shared-data
+      - equal:
+          path: spec.template.spec.volumes[2].emptyDir
+          value: {}
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].name
+          value: shared-data
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[3].mountPath
+          value: /shared-data
+
+  - it: should add both volumes and volumeMounts to statefulset when specified
+    template: statefulset.yaml
+    set:
+      historyServer.store.hybridStore.enabled: true
+      volumes:
+        - name: shared-data
+          emptyDir: {}
+      volumeMounts:
+        - name: shared-data
+          mountPath: /shared-data
+    asserts:
+      - isKind:
+          of: StatefulSet
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-spark-history-server
+      - equal:
+          path: spec.template.spec.volumes[3].name
+          value: shared-data
+      - equal:
+          path: spec.template.spec.volumes[3].emptyDir
+          value: {}
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[5].name
+          value: shared-data
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[5].mountPath
+          value: /shared-data
