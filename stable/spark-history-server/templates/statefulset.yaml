@@ -46,6 +46,9 @@ spec:
           emptyDir: { }
         - name: tmp-dir
           emptyDir: { }
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -81,6 +84,9 @@ spec:
               mountPath: {{ .Values.persistence.mountPath }}
             - name: tmp-dir
               mountPath: /tmp
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}

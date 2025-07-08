@@ -399,6 +399,20 @@
           }
         }
       ]
+    },
+    "volumes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Additional volumes to add to the pod"
+    },
+    "volumeMounts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Additional volumeMounts to add to the container"
     }
   }
 }

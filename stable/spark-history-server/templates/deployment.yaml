@@ -47,6 +47,9 @@ spec:
             name: {{ template "spark-history-server.fullname" . }}
         - name: spark-logs
           emptyDir: { }
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -76,6 +79,9 @@ spec:
               subPath: log4j2.properties
             - name: spark-logs
               mountPath: /opt/spark/logs
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}
