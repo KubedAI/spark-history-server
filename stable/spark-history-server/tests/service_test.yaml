@@ -1,0 +1,77 @@
+suite: test service configuration
+templates:
+  - service.yaml
+tests:
+  - it: should configure a ClusterIP service correctly
+    set:
+      service:
+        type: ClusterIP
+        externalPort: 80
+        internalPort: 18080
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 80
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 18080
+      - isNull:
+          path: spec.ports[0].nodePort
+
+  - it: should configure a NodePort service correctly with specific nodePort
+    set:
+      service:
+        type: NodePort
+        externalPort: 80
+        internalPort: 18080
+        nodePort: 30080
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+      - equal:
+          path: spec.ports[0].port
+          value: 80
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 18080
+      - equal:
+          path: spec.ports[0].nodePort
+          value: 30080
+
+  - it: should configure a NodePort service without specifying nodePort
+    set:
+      service:
+        type: NodePort
+        externalPort: 80
+        internalPort: 18080
+        nodePort: null
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+      - equal:
+          path: spec.ports[0].port
+          value: 80
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 18080
+      - isNull:
+          path: spec.ports[0].nodePort
+
+  - it: should have correct selector labels with custom labels
+    set:
+      podLabels:
+        custom-label: test-value
+        environment: testing
+    asserts:
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/name: spark-history-server
+            app.kubernetes.io/instance: RELEASE-NAME
+            custom-label: test-value
+            environment: testing

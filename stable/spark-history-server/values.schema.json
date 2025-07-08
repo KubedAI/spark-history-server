@@ -340,6 +340,34 @@
         }
       }
     },
+    "service": {
+      "type": "object",
+      "properties": {
+        "externalPort": { "type": "integer" },
+        "internalPort": { "type": "integer" },
+        "type": { "type": "string" },
+        "nodePort": {
+          "type": ["integer", "null"],
+          "minimum": 30000,
+          "maximum": 32767,
+          "errorMessage": "service.nodePort must be between 30000 and 32767 when service.type is NodePort"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "NodePort" } }
+          },
+          "then": {
+            "properties": {
+              "nodePort": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
     "ingress": {
       "type": "object",
       "properties": {
