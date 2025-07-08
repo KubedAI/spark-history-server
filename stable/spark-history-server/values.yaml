@@ -162,6 +162,7 @@ service:
   externalPort: 80
   internalPort: 18080
   type: ClusterIP
+  nodePort: null
 
 ingress:
   enabled: false
