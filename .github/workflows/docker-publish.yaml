@@ -16,6 +16,7 @@ on:
 
 env:
   IMAGE_NAME: spark-history-server
+  LATEST_SPARK_VERSION: 4.1.0
 
 jobs:
   build-and-push:
@@ -24,6 +25,7 @@ jobs:
     strategy:
       matrix:
         cloud_platform: [aws, azure]
+        spark_version: [ 3.5.7, 4.0.1, 4.1.0 ]
 
     permissions:
       contents: read
@@ -56,7 +58,7 @@ jobs:
           if [ -n "${{ github.event.inputs.override_version }}" ]; then
             VERSION="${{ github.event.inputs.override_version }}"
           else
-            VERSION="${{ matrix.cloud_platform }}-$(grep -E '^appVersion:[[:space:]]*' stable/spark-history-server/Chart.yaml | awk '{print $2}')"
+            VERSION="$(grep -E '^appVersion:[[:space:]]*' stable/spark-history-server/Chart.yaml | awk '{print $2}')-${{ matrix.cloud_platform }}-${{ matrix.spark_version }}"
           fi
           if [ -z "$VERSION" ]; then
             echo "❌ ERROR: Version could not be determined"
@@ -97,9 +99,26 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             CLOUD_PLATFORM=${{ matrix.cloud_platform }}
+            SPARK_VERSION=${{ matrix.spark_version }}
           tags: |
             ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:${{ steps.extract_version.outputs.VERSION }}
-            ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:${{ matrix.cloud_platform }}-latest
+            ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.cloud_platform }}-${{ matrix.spark_version }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.extract_version.outputs.VERSION }}
+
+      - name: Tag image as latest (only for LATEST_SPARK_VERSION)
+        if: steps.tagcheck.outputs.skip_build == 'false' && matrix.spark_version == env.LATEST_SPARK_VERSION
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker
+          push: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            CLOUD_PLATFORM=${{ matrix.cloud_platform }}
+            SPARK_VERSION=${{ matrix.spark_version }}
+          tags: |
+            ghcr.io/${{ steps.repo.outputs.owner }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.cloud_platform }}-latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ steps.extract_version.outputs.VERSION }}

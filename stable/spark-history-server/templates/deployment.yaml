@@ -47,6 +47,8 @@ spec:
             name: {{ template "spark-history-server.fullname" . }}
         - name: spark-logs
           emptyDir: { }
+        - name: tmp-dir
+          emptyDir: { }
         {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -79,6 +81,8 @@ spec:
               subPath: log4j2.properties
             - name: spark-logs
               mountPath: /opt/spark/logs
+            - name: tmp-dir
+              mountPath: /tmp
             {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

@@ -8,7 +8,7 @@ image:
   repository: ghcr.io/kubedai/spark-history-server
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: aws-latest # or "azure-latest" or your specific version
+  tag: latest-aws-latest # or "latest-azure-latest" or your specific version
 
   # To pull images from the registries like ghcr.io, you need to authenticate and provide the imagePullSecrets as described here:
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/

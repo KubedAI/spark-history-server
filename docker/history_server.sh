@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+DEFAULT_SPARK_VERSION="4.1.0"
+
 # Load environment variables from .env file if it exists
 if [ -f .env ]; then
   source .env
@@ -26,6 +28,7 @@ print_help(){
    echo "-r  or --AWS_REGION            Your AWS Region where the S3 bucket is in. Default: us-east-1"
    echo "-cn or --CONTAINER_NAME        Your Custom Container Name. Default: spark-history-server"
    echo "-du or --DOCKER_USER           The local user used to build/publish the docker image. Default: $USER, the current logged in user"
+   echo "-sv or --SPARK_VERSION         Spark version to use. Default: $DEFAULT_SPARK_VERSION"
    echo "-ak or --AWS_ACCESS_KEY_ID     AWS access key id for authentication, optional: you may export ENV variables for the same"
    echo "-as or --AWS_SECRET_ACCESS_KEY AWS secret access key for authentication, optional: you may export ENV variables for the same"
    echo "-at or --AWS_SESSION_TOKEN     AWS session token for authentication, optional: you may export ENV variables for the same"
@@ -62,7 +65,7 @@ do_start(){
   fi
 
   # Set docker image name with platform and version
-  DOCKER_IMAGE="${DOCKER_USER:-$USER}/spark-history-server:${CLOUD_PLATFORM}-latest"
+  DOCKER_IMAGE="${DOCKER_USER:-$USER}/spark-history-server:latest-${CLOUD_PLATFORM}-${SPARK_VERSION}"
 
   # Set default port if not set
   if [ -z "$PORT" ]; then PORT=18080 ; fi
@@ -110,7 +113,7 @@ while [ $# -gt 0 ]; do
       S3_BUCKET="$2"
       shift
       ;;
-    -sp|--S3_PREFIX)
+    -sp|--S3_BUCKET_PREFIX)
       S3_BUCKET_PREFIX="$2"
       shift
       ;;
@@ -124,6 +127,10 @@ while [ $# -gt 0 ]; do
       ;;
     -du|--DOCKER_USER)
       DOCKER_USER="$2"
+      shift
+      ;;
+    -sv|--SPARK_VERSION)
+      SPARK_VERSION="$2"
       shift
       ;;
     -ak|--AWS_ACCESS_KEY_ID)
@@ -177,6 +184,7 @@ done
 if [ -z "$AWS_REGION" ]; then AWS_REGION="us-east-1" ; fi
 if [ -z "$CONTAINER_NAME" ]; then CONTAINER_NAME="spark-history-server" ; fi
 if [ -z "$DOCKER_USER" ]; then DOCKER_USER="$USER" ; fi
+if [ -z "$SPARK_VERSION" ]; then SPARK_VERSION=$DEFAULT_SPARK_VERSION ; fi
 
 CLASS="org.apache.spark.deploy.history.HistoryServer"
 ENDPOINT="s3.$AWS_REGION.amazonaws.com"
