@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'stable/**'
+      - 'stable/spark-history-server/Chart.yaml'
   release:
     types: [published, created]
 
