@@ -19,7 +19,7 @@ jobs:
         uses: azure/setup-helm@v4.3.0
 
       - name: Install helm-unittest plugin
-        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git --verify=false
 
       - name: Run helm unittest
         run: helm unittest -d stable/spark-history-server

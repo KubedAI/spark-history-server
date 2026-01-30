@@ -18,16 +18,16 @@ tests:
           path: metadata.name
           value: RELEASE-NAME-spark-history-server
       - equal:
-          path: spec.template.spec.volumes[2].name
+          path: spec.template.spec.volumes[3].name
           value: test-volume
       - equal:
           path: spec.template.spec.volumes[2].emptyDir
           value: {}
       - equal:
-          path: spec.template.spec.volumes[3].name
+          path: spec.template.spec.volumes[4].name
           value: config-volume-custom
       - equal:
-          path: spec.template.spec.volumes[3].configMap.name
+          path: spec.template.spec.volumes[4].configMap.name
           value: test-config
 
   - it: should add custom volumes to statefulset when specified
@@ -85,19 +85,19 @@ tests:
           path: metadata.name
           value: RELEASE-NAME-spark-history-server
       - equal:
-          path: spec.template.spec.containers[0].volumeMounts[3].name
+          path: spec.template.spec.containers[0].volumeMounts[4].name
           value: test-volume
       - equal:
-          path: spec.template.spec.containers[0].volumeMounts[3].mountPath
+          path: spec.template.spec.containers[0].volumeMounts[4].mountPath
           value: /test
       - equal:
-          path: spec.template.spec.containers[0].volumeMounts[3].readOnly
+          path: spec.template.spec.containers[0].volumeMounts[4].readOnly
           value: true
       - equal:
-          path: spec.template.spec.containers[0].volumeMounts[4].name
+          path: spec.template.spec.containers[0].volumeMounts[5].name
           value: config-volume-custom
       - equal:
-          path: spec.template.spec.containers[0].volumeMounts[4].mountPath
+          path: spec.template.spec.containers[0].volumeMounts[5].mountPath
           value: /config
 
   - it: should add both volumes and volumeMounts to deployment when specified
@@ -115,16 +115,16 @@ tests:
           path: metadata.name
           value: RELEASE-NAME-spark-history-server
       - equal:
-          path: spec.template.spec.volumes[2].name
+          path: spec.template.spec.volumes[3].name
           value: shared-data
       - equal:
-          path: spec.template.spec.volumes[2].emptyDir
+          path: spec.template.spec.volumes[3].emptyDir
           value: {}
       - equal:
-          path: spec.template.spec.containers[0].volumeMounts[3].name
+          path: spec.template.spec.containers[0].volumeMounts[4].name
           value: shared-data
       - equal:
-          path: spec.template.spec.containers[0].volumeMounts[3].mountPath
+          path: spec.template.spec.containers[0].volumeMounts[4].mountPath
           value: /shared-data
 
   - it: should add both volumes and volumeMounts to statefulset when specified

@@ -1,65 +1,71 @@
-# Base image with Maven and Amazon Corretto 8 (Java 8)
-# This is suitable for building Spark-compatible Java applications and resolving Maven dependencies
-FROM maven:3.6-amazoncorretto-8
+# =============================================================================
+# Spark History Server Docker Image
+# =============================================================================
+# This Dockerfile builds a Spark History Server image with cloud storage support
+# (AWS S3 or Azure Data Lake Storage Gen2).
+#
+# Build arguments:
+#   CLOUD_PLATFORM - Required. Values: "aws" or "azure"
+#   SPARK_VERSION  - Required. Values: 3.5.7, 4.0.1, 4.1.0
+#
+# Example:
+#   docker build --build-arg CLOUD_PLATFORM=aws --build-arg SPARK_VERSION=3.5.7 .
+# =============================================================================
 
-# Define a UID for the non-root user to run Spark History Server securely
+# --- Base Image ---
+FROM maven:3.9-amazoncorretto-21-debian
+
+# --- Build Arguments ---
+# UID for the non-root user running the Spark History Server
 ARG spark_uid=1000
-# Define the cloud platform to use for Maven profiles. The supported values are:
-# - aws: for AWS S3
-# - azure: for ABFS - Azure Data Lake Storage Gen2
+
+# Cloud platform for storage integration (aws|azure)
 ARG CLOUD_PLATFORM
-# Validate the CLOUD_PLATFORM argument
+
+# Spark version to install (must match a profile in pom.xml)
+ARG SPARK_VERSION
+
+# --- Argument Validation ---
 RUN if [ "$CLOUD_PLATFORM" != "aws" ] && [ "$CLOUD_PLATFORM" != "azure" ]; then \
       >&2 echo 'CLOUD_PLATFORM build argument is required and must be "aws" or "azure". Add --build-arg CLOUD_PLATFORM="<aws|azure>" to your "docker build" command.' \
       && exit 1; \
     fi
 
-# Set working directory for the build phase
+RUN if [ -z "$SPARK_VERSION" ]; then \
+      >&2 echo 'SPARK_VERSION build argument is required. Add --build-arg SPARK_VERSION="<version>" to your "docker build" command.' && exit 1; \
+    fi && \
+    case "$SPARK_VERSION" in \
+      3.5.7|4.0.1|4.1.0) ;; \
+      *) >&2 echo 'Invalid SPARK_VERSION. Allowed: 3.5.7, 4.0.1, 4.1.0.' && exit 1;; \
+    esac
+
+# --- Install Dependencies ---
+RUN apt update && apt install -y curl
+
+# Download official Spark distribution with Hadoop support
+RUN curl -o ./spark-${SPARK_VERSION}-bin-hadoop3.tgz https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz && \
+    tar -xzf spark-${SPARK_VERSION}-bin-hadoop3.tgz && \
+    mv spark-${SPARK_VERSION}-bin-hadoop3 /opt/spark && \
+    rm spark-${SPARK_VERSION}-bin-hadoop3.tgz
+
+# --- Add Cloud Storage Dependencies ---
+# Download cloud-specific Hadoop filesystem plugins via Maven.
+# Note: If adding new dependencies to pom.xml, update includeGroupIds accordingly.
 WORKDIR /tmp/
-
-# Install essential utilities:
-# - procps: for basic process inspection (e.g., `ps`)
-# - curl: for downloading Spark binaries
-# - tar: for unpacking Spark archive
-RUN yum install -y procps curl tar && yum clean all
-
-# Copy the Maven POM file into the image
-# This is used to resolve all Hadoop, AWS SDK, and other dependencies
 COPY pom.xml /tmp
+RUN mvn -P${CLOUD_PLATFORM}-spark${SPARK_VERSION} dependency:copy-dependencies -DincludeGroupIds=org.apache.hadoop,software.amazon.awssdk,com.amazonaws -DoutputDirectory=/opt/spark/jars/
 
-# Download the Apache Spark binary (without Hadoop) to allow for custom Hadoop integrations
-# Unpack Spark into /opt/spark, which is the conventional install path
-RUN curl -o ./spark-3.5.5-bin-without-hadoop.tgz https://archive.apache.org/dist/spark/spark-3.5.5/spark-3.5.5-bin-without-hadoop.tgz && \
-    tar -xzf spark-3.5.5-bin-without-hadoop.tgz && \
-    mv spark-3.5.5-bin-without-hadoop /opt/spark && \
-    rm spark-3.5.5-bin-without-hadoop.tgz
-
-# Use Maven to resolve and copy all runtime dependencies from the pom.xml
-# into Spark's JAR directory. This ensures S3/Hadoop/AWS SDK integration.
-# Then remove conflicting or outdated jars to prevent runtime classloader issues.
-RUN mvn -P${CLOUD_PLATFORM} dependency:copy-dependencies -DoutputDirectory=/opt/spark/jars/ && \
-    rm -f /opt/spark/jars/jsr305-3.0.0.jar && \
-    rm -f /opt/spark/jars/jersey-*-1.19.jar && \
-    rm -f /opt/spark/jars/joda-time-2.8.1.jar && \
-    rm -f /opt/spark/jars/jmespath-java-*.jar && \
-    rm -f /opt/spark/jars/aws-java-sdk-core-*.jar && \
-    rm -f /opt/spark/jars/aws-java-sdk-kms-*.jar && \
-    rm -f /opt/spark/jars/aws-java-sdk-s3-*.jar && \
-    rm -f /opt/spark/jars/ion-java-1.0.2.jar
-
-# Create Spark logs directory and assign ownership to the non-root user
-# Also inject the user into /etc/passwd (required by some JVM tools and shells)
+# --- Configure Non-Root User ---
+# Create logs directory and register user in /etc/passwd (required by JVM tools)
 RUN mkdir -p /opt/spark/logs && \
     chown -R ${spark_uid}:${spark_uid} /opt/spark && \
     echo "${spark_uid}:x:${spark_uid}:${spark_uid}:anonymous uid:/opt/spark:/bin/false" >> /etc/passwd
 
-# Switch to non-root user for security best practices
 USER ${spark_uid}
 
-# Set working directory to Spark home
 WORKDIR /opt/spark
 
-# Use bash as the entrypoint to allow Helm, K8s, or CI to pass runtime commands via CMD
-# For example: 
-# CMD ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.history.HistoryServer"]
+# --- Entrypoint ---
+# Use bash to allow runtime command injection via CMD
+# Example: CMD ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.history.HistoryServer"]
 ENTRYPOINT ["/bin/bash", "-c"]

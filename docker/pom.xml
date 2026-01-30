@@ -2,89 +2,50 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+    <!--
+    =========================================================================
+    Spark History Server - Cloud Storage Dependencies
+    =========================================================================
+
+    Purpose:
+      This POM resolves dependencies required to integrate Spark History Server
+      with cloud storage services (AWS S3 or Azure Blob Storage).
+
+    How it works:
+      - Each profile corresponds to a cloud platform + Spark version combination
+      - The Dockerfile activates the appropriate profile during build
+      - Only cloud-specific Hadoop filesystem plugins are downloaded here;
+        core Hadoop dependencies are already included in the Spark distribution
+
+    Available profiles:
+      - aws-spark3.5.7   : AWS S3 support for Spark 3.5.7
+      - aws-spark4.0.1   : AWS S3 support for Spark 4.0.1
+      - aws-spark4.1.0   : AWS S3 support for Spark 4.1.0
+      - azure-spark3.5.7 : Azure ADLS Gen2 support for Spark 3.5.7
+      - azure-spark4.0.1 : Azure ADLS Gen2 support for Spark 4.0.1
+      - azure-spark4.1.0 : Azure ADLS Gen2 support for Spark 4.1.0
+
+    IMPORTANT:
+      When adding new dependencies, ensure their groupIds are included in the
+      Dockerfile's `mvn dependency:copy-dependencies -DincludeGroupIds=...` command.
+    =========================================================================
+    -->
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.spark</groupId>
     <artifactId>SparkHistoryServer</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jdk.version>1.8</jdk.version>
-        <hadoop.version>3.4.1</hadoop.version>
-        <awssdk.version>1.12.783</awssdk.version>
-        <httpclient.version>4.5.13</httpclient.version>
-        <jackson.version>2.18.1</jackson.version>
-        <jackson.databind.version>2.18.1</jackson.databind.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>${hadoop.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-aws</artifactId>
-            <version>${hadoop.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.databind.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 
     <profiles>
+        <!-- ==================== AWS Profiles ==================== -->
+
+        <!-- AWS S3 support for Spark 3.5.7 (uses AWS SDK v1) -->
         <profile>
-            <id>aws</id>
+            <id>aws-spark3.5.7</id>
+            <properties>
+                <hadoop.version>3.3.4</hadoop.version>
+                <awssdk.version>1.12.262</awssdk.version>
+            </properties>
             <dependencyManagement>
                 <dependencies>
                     <dependency>
@@ -98,13 +59,9 @@
             </dependencyManagement>
             <dependencies>
                 <dependency>
-                    <groupId>com.amazonaws</groupId>
-                    <artifactId>aws-java-sdk-bundle</artifactId>
-                    <version>${awssdk.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.amazonaws</groupId>
-                    <artifactId>aws-java-sdk-core</artifactId>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-aws</artifactId>
+                    <version>${hadoop.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>com.amazonaws</groupId>
@@ -112,13 +69,80 @@
                 </dependency>
             </dependencies>
         </profile>
+
+        <!-- AWS S3 support for Spark 4.0.1 (uses AWS SDK v2) -->
         <profile>
-            <id>azure</id>
+            <id>aws-spark4.0.1</id>
+            <properties>
+                <hadoop.version>3.4.1</hadoop.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-aws</artifactId>
+                    <version>${hadoop.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- AWS S3 support for Spark 4.1.0 (uses AWS SDK v2) -->
+        <profile>
+            <id>aws-spark4.1.0</id>
+            <properties>
+                <hadoop.version>3.4.1</hadoop.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-aws</artifactId>
+                    <version>${hadoop.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- ==================== Azure Profiles ==================== -->
+
+        <!-- Azure ADLS Gen2 (ABFS) support for Spark 3.5.7 -->
+        <profile>
+            <id>azure-spark3.5.7</id>
+            <properties>
+                <hadoop.version>3.3.4</hadoop.version>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-azure</artifactId>
-                    <version>3.4.1</version>
+                    <version>${hadoop.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Azure ADLS Gen2 (ABFS) support for Spark 4.0.1 -->
+        <profile>
+            <id>azure-spark4.0.1</id>
+            <properties>
+                <hadoop.version>3.4.1</hadoop.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-azure</artifactId>
+                    <version>${hadoop.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Azure ADLS Gen2 (ABFS) support for Spark 4.1.0 -->
+        <profile>
+            <id>azure-spark4.1.0</id>
+            <properties>
+                <hadoop.version>3.4.1</hadoop.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-azure</artifactId>
+                    <version>${hadoop.version}</version>
                 </dependency>
             </dependencies>
         </profile>

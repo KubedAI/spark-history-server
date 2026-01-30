@@ -23,7 +23,7 @@ cd spark-history-server/docker
 **Use the provided build script to build the Docker image. You must specify the cloud platform (`aws` or `azure`):**
 
 ```bash
-./build_image.sh <cloud-platform> [image-tag] [-du|--DOCKER_USER <docker_user>]
+./build_image.sh <cloud-platform> -sv <spark-version> [image-tag] [-du|--DOCKER_USER <docker_user>]
 # Example:
 ./build_image.sh aws
 ./build_image.sh azure my-custom-image:latest
@@ -37,7 +37,7 @@ cd spark-history-server/docker
 Alternatively, you can build manually:
 
 ```bash
-docker build --build-arg CLOUD_PLATFORM=<aws|azure> -t spark-history-server:<aws|azure>-latest .
+docker build --build-arg SPARK_VERSION=<spark-version> --build-arg CLOUD_PLATFORM=<aws|azure> -t spark-history-server:latest-<aws|azure>-<spark-version> .
 ```
 
 > Note: You can replace `spark-history-server:<aws|azure>-latest` with your preferred image name and tag.
