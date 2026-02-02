@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2025-07-07
+### Added
+- **Spark 4 support** - The History Server image is now released for Spark 3.5.7, 4.0.1 and 4.1.0 versions.
+
+
+### Changed
+- **New image tagging version scheme**: The image tags have been changed to use the version format `<chart-version>-<cloud>-<spark-version>`, e.g., `1.5.2-aws-3.5.7` or `latest-aws-4.1.0`.
+- **Maven base image** Upgraded the History Server base image to run with Java 21 so that it is compatible with Spark 4.x.
+- **Using "with Hadoop" Spark distribution**: The History Server image now uses the Spark distribution including Hadoop binaries to simplify the building process.
+- **S3 bucket prefix environment variable** Changed the environment variable from `S3_PREFIX` to `S3_BUCKET_PREFIX` so that it is consistent with the running script.
+- **Writable `/tmp`**: Changed the `/tmp` directory to be writable so that the zstd compressed logs could be extracted there.
+
 ## [1.5.0] - 2025-07-07
 
 ### Added
