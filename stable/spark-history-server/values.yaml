@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/kubedai/spark-history-server
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest-aws-latest # or "latest-azure-latest" or your specific version
 
