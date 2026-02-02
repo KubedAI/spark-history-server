@@ -2,8 +2,31 @@ apiVersion: v1
 entries:
   spark-history-server:
   - apiVersion: v2
+    appVersion: 1.5.2
+    created: "2026-02-02T16:49:30.320964186Z"
+    description: A Helm chart for deploying Spark History Server in Kubernetes
+    digest: ee532dfbcce822315f8b6d1a0da082aaaa0788b262d239ff0458ac4d42c0d47c
+    home: https://github.com/kubedai/spark-history-server
+    keywords:
+    - spark
+    - kubernetes
+    - helm
+    - history-server
+    - monitoring
+    - analytics
+    maintainers:
+    - email: vara.bonthu@gmail.com
+      name: vara-bonthu
+    name: spark-history-server
+    sources:
+    - https://github.com/kubedai/spark-history-server
+    type: application
+    urls:
+    - https://KubedAI.github.io/spark-history-server/spark-history-server-1.5.2.tgz
+    version: 1.5.2
+  - apiVersion: v2
     appVersion: 1.5.1
-    created: "2025-07-09T15:34:03.921990523Z"
+    created: "2026-02-02T16:49:30.32000971Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 4083637d4c131823b772656631fb94be44f2128d9d8160658ad7fb1e0d2b5ceb
     home: https://github.com/kubedai/spark-history-server
@@ -26,7 +49,7 @@ entries:
     version: 1.5.1
   - apiVersion: v2
     appVersion: 1.5.0
-    created: "2025-07-09T15:34:03.920850549Z"
+    created: "2026-02-02T16:49:30.318852193Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 6652a22698106086457e15a458e85bf283392227cfd3e6400d5f5f003a31165e
     home: https://github.com/kubedai/spark-history-server
@@ -49,7 +72,7 @@ entries:
     version: 1.5.0
   - apiVersion: v2
     appVersion: 1.4.0
-    created: "2025-07-09T15:34:03.919851197Z"
+    created: "2026-02-02T16:49:30.317875095Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: cb714c1f702663029ea32891a9d00d4f611fb1926c544a9fd19f6ea11249798b
     home: https://github.com/kubedai/spark-history-server
@@ -72,7 +95,7 @@ entries:
     version: 1.4.0
   - apiVersion: v2
     appVersion: 1.3.2
-    created: "2025-07-09T15:34:03.918999833Z"
+    created: "2026-02-02T16:49:30.317028651Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 4f42c09ab2ddb7c23688c51641826a53934b3ffdc9e1f3298b19e53ffa99a002
     home: https://github.com/kubedai/spark-history-server
@@ -95,7 +118,7 @@ entries:
     version: 1.3.2
   - apiVersion: v2
     appVersion: 1.3.1
-    created: "2025-07-09T15:34:03.918512321Z"
+    created: "2026-02-02T16:49:30.316509279Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 6cfe6a26031d931d35e9959b3d8e1fd47bd684884d85aa6bf0eca8bbf080d225
     maintainers:
@@ -108,7 +131,7 @@ entries:
     version: 1.3.1
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2025-07-09T15:34:03.918051017Z"
+    created: "2026-02-02T16:49:30.316012369Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: d1f6ce6d062ae9a1420487c173359540f78e845e22fe85ab14d1283870de2d06
     maintainers:
@@ -121,7 +144,7 @@ entries:
     version: 1.3.0
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2025-07-09T15:34:03.917560548Z"
+    created: "2026-02-02T16:49:30.315252937Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 89f843137def426653bb034991454ad3d29b5e0badd5f9d07190d3ac19167b3b
     maintainers:
@@ -134,7 +157,7 @@ entries:
     version: 1.2.0
   - apiVersion: v2
     appVersion: 1.0.6
-    created: "2025-07-09T15:34:03.917095638Z"
+    created: "2026-02-02T16:49:30.313963224Z"
     description: A Helm chart for deploying Spark History Server in Kubernetes
     digest: 5329d365bc48901b251af3ad3a06c0d27e63bd61614b9c07f62528a7131f8d69
     maintainers:
@@ -145,4 +168,4 @@ entries:
     urls:
     - https://KubedAI.github.io/spark-history-server/spark-history-server-1.0.0.tgz
     version: 1.0.0
-generated: "2025-07-09T15:34:03.916295829Z"
+generated: "2026-02-02T16:49:30.313350156Z"
