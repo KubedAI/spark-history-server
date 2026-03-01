@@ -88,7 +88,7 @@ do_start(){
 
   # Both AWS S3, Azure and GCS Hadoop File System settings are included below.
   # Only the settings relevant to the chosen log directory (spark.history.fs.logDirectory) will be used by Spark History Server.
-  docker run -itd --name $CONTAINER_NAME -e SPARK_DAEMON_MEMORY="2g" -e SPARK_DAEMON_JAVA_OPTS="-XX:+UseG1GC" -e SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS \
+  docker run -itd --name "$CONTAINER_NAME" -e SPARK_DAEMON_MEMORY="2g" -e SPARK_DAEMON_JAVA_OPTS="-XX:+UseG1GC" -e SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS \
   -Dspark.history.fs.logDirectory=$LOG_DIR \
   -Dspark.hadoop.fs.s3a.access.key=$AWS_ACCESS_KEY_ID \
   -Dspark.hadoop.fs.s3a.secret.key=$AWS_SECRET_ACCESS_KEY \
@@ -103,7 +103,7 @@ do_start(){
   -Dspark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem \
   -Dspark.hadoop.fs.AbstractFileSystem.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS \
   -Dspark.history.ui.port=$PORT" \
-  -p $PORT:$PORT $GCS_MOUNT $GCS_ENV $DOCKER_IMAGE "/opt/spark/bin/spark-class $CLASS"
+  -p "$PORT:$PORT" "$GCS_MOUNT" "$GCS_ENV" "$DOCKER_IMAGE" "/opt/spark/bin/spark-class $CLASS"
   sleep 10
   echo "Spark History Server running @ http://localhost:$PORT "
   echo
