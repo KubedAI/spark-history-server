@@ -66,6 +66,10 @@ do_start(){
     LOG_DIR="abfss://$AZURE_CONTAINER@$AZURE_STORAGE_ACCOUNT.dfs.core.windows.net/$AZURE_EVENT_LOGS_PATH"
   elif [ -n "$GCS_BUCKET" ]; then
     CLOUD_PLATFORM="gcp"
+    if [ -z "$GCS_EVENT_LOGS_PATH" ]; then
+      echo "Error: GCS_EVENT_LOGS_PATH is required when using GCS. Set --gcs-event-logs-path or GCS_EVENT_LOGS_PATH."
+      exit 1
+    fi
     LOG_DIR="gs://$GCS_BUCKET/$GCS_EVENT_LOGS_PATH"
   else
     echo "Error: Either S3_BUCKET, AZURE_CONTAINER, or GCS_BUCKET must be set."
@@ -78,12 +82,12 @@ do_start(){
   # Set default port if not set
   if [ -z "$PORT" ]; then PORT=18080 ; fi
 
-  # For GCS: mount key file and pass GOOGLE_APPLICATION_CREDENTIALS into container when using a JSON key file
-  GCS_MOUNT=""
-  GCS_ENV=""
+  # GCS with key file: mount host key file into container and set path env. GCP client libs expect
+  # GOOGLE_APPLICATION_CREDENTIALS to point at a key file path (not inline JSON). The bind mount is
+  # read-only and reflects the host file; no copy is made.
+  GCS_USE_KEYFILE=""
   if [ "$CLOUD_PLATFORM" = "gcp" ] && [ -n "$GOOGLE_APPLICATION_CREDENTIALS" ] && [ -f "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
-    GCS_MOUNT="-v $GOOGLE_APPLICATION_CREDENTIALS:/opt/gcp-credentials.json:ro"
-    GCS_ENV="-e GOOGLE_APPLICATION_CREDENTIALS=/opt/gcp-credentials.json"
+    GCS_USE_KEYFILE=1
   fi
 
   # Both AWS S3, Azure and GCS Hadoop File System settings are included below.
@@ -103,7 +107,8 @@ do_start(){
   -Dspark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem \
   -Dspark.hadoop.fs.AbstractFileSystem.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS \
   -Dspark.history.ui.port=$PORT" \
-  -p "$PORT:$PORT" "$GCS_MOUNT" "$GCS_ENV" "$DOCKER_IMAGE" "/opt/spark/bin/spark-class $CLASS"
+  ${GCS_USE_KEYFILE:+-v "$GOOGLE_APPLICATION_CREDENTIALS:/opt/gcp-credentials.json:ro" -e GOOGLE_APPLICATION_CREDENTIALS=/opt/gcp-credentials.json} \
+  -p "$PORT:$PORT" "$DOCKER_IMAGE" "/opt/spark/bin/spark-class $CLASS"
   sleep 10
   echo "Spark History Server running @ http://localhost:$PORT "
   echo
