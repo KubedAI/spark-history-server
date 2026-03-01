@@ -78,6 +78,14 @@ do_start(){
   # Set default port if not set
   if [ -z "$PORT" ]; then PORT=18080 ; fi
 
+  # For GCS: mount key file and pass GOOGLE_APPLICATION_CREDENTIALS into container when using a JSON key file
+  GCS_MOUNT=""
+  GCS_ENV=""
+  if [ "$CLOUD_PLATFORM" = "gcp" ] && [ -n "$GOOGLE_APPLICATION_CREDENTIALS" ] && [ -f "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+    GCS_MOUNT="-v $GOOGLE_APPLICATION_CREDENTIALS:/opt/gcp-credentials.json:ro"
+    GCS_ENV="-e GOOGLE_APPLICATION_CREDENTIALS=/opt/gcp-credentials.json"
+  fi
+
   # Both AWS S3, Azure and GCS Hadoop File System settings are included below.
   # Only the settings relevant to the chosen log directory (spark.history.fs.logDirectory) will be used by Spark History Server.
   docker run -itd --name $CONTAINER_NAME -e SPARK_DAEMON_MEMORY="2g" -e SPARK_DAEMON_JAVA_OPTS="-XX:+UseG1GC" -e SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS \
@@ -95,7 +103,7 @@ do_start(){
   -Dspark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem \
   -Dspark.hadoop.fs.AbstractFileSystem.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS \
   -Dspark.history.ui.port=$PORT" \
-  -p $PORT:$PORT $DOCKER_IMAGE "/opt/spark/bin/spark-class $CLASS"
+  -p $PORT:$PORT $GCS_MOUNT $GCS_ENV $DOCKER_IMAGE "/opt/spark/bin/spark-class $CLASS"
   sleep 10
   echo "Spark History Server running @ http://localhost:$PORT "
   echo
