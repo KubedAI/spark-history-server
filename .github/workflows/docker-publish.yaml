@@ -24,7 +24,7 @@ jobs:
 
     strategy:
       matrix:
-        cloud_platform: [aws, azure]
+        cloud_platform: [aws, azure, gcp]
         spark_version: [ 3.5.7, 4.0.1, 4.1.0 ]
 
     permissions:

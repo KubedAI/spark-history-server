@@ -19,15 +19,15 @@ FROM maven:3.9-amazoncorretto-21-debian
 # UID for the non-root user running the Spark History Server
 ARG spark_uid=1000
 
-# Cloud platform for storage integration (aws|azure)
+# Cloud platform for storage integration (aws|azure|gcp)
 ARG CLOUD_PLATFORM
 
 # Spark version to install (must match a profile in pom.xml)
 ARG SPARK_VERSION
 
 # --- Argument Validation ---
-RUN if [ "$CLOUD_PLATFORM" != "aws" ] && [ "$CLOUD_PLATFORM" != "azure" ]; then \
-      >&2 echo 'CLOUD_PLATFORM build argument is required and must be "aws" or "azure". Add --build-arg CLOUD_PLATFORM="<aws|azure>" to your "docker build" command.' \
+RUN if [ "$CLOUD_PLATFORM" != "aws" ] && [ "$CLOUD_PLATFORM" != "azure" ] && [ "$CLOUD_PLATFORM" != "gcp" ]; then \
+      >&2 echo 'CLOUD_PLATFORM build argument is required and must be "aws", "azure", or "gcp". Add --build-arg CLOUD_PLATFORM="<aws|azure|gcp>" to your "docker build" command.' \
       && exit 1; \
     fi
 
@@ -53,7 +53,9 @@ RUN curl -o ./spark-${SPARK_VERSION}-bin-hadoop3.tgz https://archive.apache.org/
 # Note: If adding new dependencies to pom.xml, update includeGroupIds accordingly.
 WORKDIR /tmp/
 COPY pom.xml /tmp
-RUN mvn -P${CLOUD_PLATFORM}-spark${SPARK_VERSION} dependency:copy-dependencies -DincludeGroupIds=org.apache.hadoop,software.amazon.awssdk,com.amazonaws -DoutputDirectory=/opt/spark/jars/
+RUN GROUP_IDS="org.apache.hadoop,software.amazon.awssdk,com.amazonaws" && \
+    if [ "$CLOUD_PLATFORM" = "gcp" ]; then GROUP_IDS="$GROUP_IDS,com.google.cloud.bigdataoss"; fi && \
+    mvn -P${CLOUD_PLATFORM}-spark${SPARK_VERSION} dependency:copy-dependencies -DincludeGroupIds="$GROUP_IDS" -DoutputDirectory=/opt/spark/jars/
 
 # --- Configure Non-Root User ---
 # Create logs directory and register user in /etc/passwd (required by JVM tools)

@@ -24,6 +24,9 @@
       - azure-spark3.5.7 : Azure ADLS Gen2 support for Spark 3.5.7
       - azure-spark4.0.1 : Azure ADLS Gen2 support for Spark 4.0.1
       - azure-spark4.1.0 : Azure ADLS Gen2 support for Spark 4.1.0
+      - gcp-spark3.5.7   : GCP GCS support for Spark 3.5.7
+      - gcp-spark4.0.1   : GCP GCS support for Spark 4.0.1
+      - gcp-spark4.1.0   : GCP GCS support for Spark 4.1.0
 
     IMPORTANT:
       When adding new dependencies, ensure their groupIds are included in the
@@ -143,6 +146,59 @@
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-azure</artifactId>
                     <version>${hadoop.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- ==================== GCP GCS Profiles ==================== -->
+
+        <!-- GCP GCS support for Spark 3.5.7 -->
+        <profile>
+            <id>gcp-spark3.5.7</id>
+            <properties>
+                <hadoop.version>3.3.4</hadoop.version>
+                <gcs-connector.version>hadoop3-2.2.32</gcs-connector.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.cloud.bigdataoss</groupId>
+                    <artifactId>gcs-connector</artifactId>
+                    <version>${gcs-connector.version}</version>
+                    <classifier>shaded</classifier>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- GCP GCS support for Spark 4.0.1 -->
+        <profile>
+            <id>gcp-spark4.0.1</id>
+            <properties>
+                <hadoop.version>3.4.1</hadoop.version>
+                <gcs-connector.version>hadoop3-2.2.32</gcs-connector.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.cloud.bigdataoss</groupId>
+                    <artifactId>gcs-connector</artifactId>
+                    <version>${gcs-connector.version}</version>
+                    <classifier>shaded</classifier>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- GCP GCS support for Spark 4.1.0 -->
+        <profile>
+            <id>gcp-spark4.1.0</id>
+            <properties>
+                <hadoop.version>3.4.1</hadoop.version>
+                <gcs-connector.version>hadoop3-2.2.32</gcs-connector.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.cloud.bigdataoss</groupId>
+                    <artifactId>gcs-connector</artifactId>
+                    <version>${gcs-connector.version}</version>
+                    <classifier>shaded</classifier>
                 </dependency>
             </dependencies>
         </profile>

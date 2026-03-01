@@ -21,6 +21,12 @@ data:
     spark.hadoop.fs.azure.account.oauth2.client.secret.{{ .storageAccount }}.dfs.core.windows.net={{ .clientSecret }}
     spark.hadoop.fs.azure.account.oauth2.client.endpoint.{{ .storageAccount }}.dfs.core.windows.net=https://login.microsoftonline.com/{{ .tenantId }}/oauth2/token
     {{- end }}
+    {{- else if eq .Values.logStore.type "gcs" }}
+    {{- with .Values.logStore.gcs }}
+    spark.history.fs.logDirectory=gs://{{ .bucket }}/{{ .eventLogsPath }}
+    spark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem
+    spark.hadoop.fs.AbstractFileSystem.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS
+    {{- end }}
     {{- else if eq .Values.logStore.type "local" }}
     {{- with .Values.logStore.local }}
     spark.history.fs.logDirectory=file://{{ .directory }}

@@ -37,9 +37,9 @@ serviceAccount:
   annotations: { }
 
 logStore:
-  # Enter the type of log store to use. Supported values are "s3", "abfs", and "local".
+  # Enter the type of log store to use. Supported values are "s3", "abfs", "gcs", and "local".
   # Remember
-  type: "s3"  # or "abfs" or "local" depending on which storage you're targeting
+  type: "s3"  # or "abfs" or "gcs" or "local" depending on which storage you're targeting
 
   s3:
     # Ensure IRSA roles has permissions to read the files for the given S3 bucket
@@ -54,7 +54,13 @@ logStore:
     clientSecret: <CLIENT SECRET>
     tenantId: <TENANT ID>
     eventLogsPath: <PREFIX FOR SPARK EVENT LOGS>
-    
+
+  gcs:
+    bucket: "example-bucket"
+    eventLogsPath: "spark-events/"
+    # For GKE Workload Identity: GCP service account email (e.g. spark-history@PROJECT.iam.gserviceaccount.com)
+    gcpServiceAccount: ""
+
   local:
     directory: "/home"
 

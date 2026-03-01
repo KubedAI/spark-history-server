@@ -6,7 +6,7 @@ ALLOWED_SPARK_VERSIONS="3.5.7 4.0.1 4.1.0"
 
 usage() {
   echo "Usage: $0 <cloud-platform> [image-tag] [-du|--DOCKER_USER <docker_user>] [-sv|--SPARK_VERSION <spark_version>]"
-  echo "  <cloud-platform>: aws | azure"
+  echo "  <cloud-platform>: aws | azure | gcp"
   echo "  [image-tag]: Optional. Defaults to <docker_user>/spark-history-server:latest-<cloud-platform>-<spark_version>"
   echo "  -du|--DOCKER_USER: Optional. Docker user for image name. Defaults to \$USER."
   echo "  -sv|--SPARK_VERSION: Optional. Spark version to use. Defaults to $DEFAULT_SPARK_VERSION"
@@ -31,7 +31,7 @@ while [ $# -gt 0 ]; do
       SPARK_VERSION="$2"
       shift
       ;;
-    aws|azure)
+    aws|azure|gcp)
       CLOUD_PLATFORM="$1"
       ;;
     *)
@@ -48,8 +48,8 @@ if [ -z "$CLOUD_PLATFORM" ]; then
   exit 1
 fi
 
-if [ "$CLOUD_PLATFORM" != "aws" ] && [ "$CLOUD_PLATFORM" != "azure" ]; then
-  echo "Error: CLOUD_PLATFORM must be 'aws' or 'azure'."
+if [ "$CLOUD_PLATFORM" != "aws" ] && [ "$CLOUD_PLATFORM" != "azure" ] && [ "$CLOUD_PLATFORM" != "gcp" ]; then
+  echo "Error: CLOUD_PLATFORM must be 'aws', 'azure', or 'gcp'."
   exit 2
 fi
 
