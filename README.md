@@ -19,7 +19,7 @@
 - Replay and display application event logs with detailed metrics
 - List application attempts with configurable retention policies
 - Event log compaction to reduce storage requirements
-- Support for AWS S3, Azure ADLS Gen2, and local storage backends
+- Support for AWS S3, Azure ADLS Gen2, GCP GCS, and local storage backends
 
 ## ✨ Features
 
@@ -32,6 +32,7 @@
 ### 🔌 **Multi-Cloud Storage Support**
 - **Amazon S3**: Native S3A connector with optimized connection pooling
 - **Azure ADLS Gen2**: OAuth2 authentication with Azure Blob File System (ABFS)
+- **Google Cloud Storage**: GCS connector with Workload Identity (GKE) support
 - **Local Storage**: Persistent volume support for air-gapped environments
 - **Hybrid Store**: In-memory + disk caching for optimal performance
 
@@ -53,7 +54,7 @@
 |-------------|---------|-------|
 | **Kubernetes** | 1.19+ | Tested on EKS, AKS, and vanilla K8s |
 | **Helm** | 3.0+ | Package manager for Kubernetes |
-| **Storage Access** | - | S3, ADLS Gen2, or Persistent Volume |
+| **Storage Access** | - | S3, ADLS Gen2, GCS, or Persistent Volume |
 
 ### Platform-Specific Requirements
 
@@ -64,6 +65,10 @@
 **Azure AKS:**
 - Azure CLI with service principal credentials
 - Storage account with Data Lake Storage Gen2 enabled
+
+**GCP GKE:**
+- GCS bucket for Spark event logs
+- For Workload Identity: GCP service account with Storage Object Viewer (or equivalent) on the bucket
 
 ## 🚀 Quick Start
 

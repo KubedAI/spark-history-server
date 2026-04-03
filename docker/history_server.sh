@@ -42,6 +42,11 @@ print_help(){
    echo "--azure-client-secret or --AZURE_CLIENT_SECRET      The client secret of the Azure Storage Account, REQUIRED (for Azure). You may export ENV variables for the same"
    echo "--azure-event-logs-path or --AZURE_EVENT_LOGS_PATH  The path to the Spark EventLogs in the Azure Storage Account. eg: 'spark/history/events'. REQUIRED (for Azure)"
    echo
+   echo "For GCP (Google Cloud Storage):"
+   echo "--gcs-bucket or --GCS_BUCKET                       GCS bucket name where you have your Spark EventLogs. eg: my-bucket in 'gs://my-bucket/events/'. REQUIRED (for GCP)"
+   echo "--gcs-event-logs-path or --GCS_EVENT_LOGS_PATH      Path to the Spark EventLogs in the bucket. eg: 'spark/history/events'. REQUIRED (for GCP)"
+   echo "Set GOOGLE_APPLICATION_CREDENTIALS to a JSON key file path for authentication, or use workload identity in GKE."
+   echo
    echo "eg:"
    echo "sh history_server.sh start -sb my-bucket -sp spark/history/events"
    echo "sh history_server.sh stop"
@@ -59,8 +64,15 @@ do_start(){
   elif [ -n "$AZURE_CONTAINER" ]; then
     CLOUD_PLATFORM="azure"
     LOG_DIR="abfss://$AZURE_CONTAINER@$AZURE_STORAGE_ACCOUNT.dfs.core.windows.net/$AZURE_EVENT_LOGS_PATH"
+  elif [ -n "$GCS_BUCKET" ]; then
+    CLOUD_PLATFORM="gcp"
+    if [ -z "$GCS_EVENT_LOGS_PATH" ]; then
+      echo "Error: GCS_EVENT_LOGS_PATH is required when using GCS. Set --gcs-event-logs-path or GCS_EVENT_LOGS_PATH."
+      exit 1
+    fi
+    LOG_DIR="gs://$GCS_BUCKET/$GCS_EVENT_LOGS_PATH"
   else
-    echo "Error: Either S3_BUCKET or AZURE_CONTAINER must be set."
+    echo "Error: Either S3_BUCKET, AZURE_CONTAINER, or GCS_BUCKET must be set."
     exit 1
   fi
 
@@ -70,9 +82,17 @@ do_start(){
   # Set default port if not set
   if [ -z "$PORT" ]; then PORT=18080 ; fi
 
-  # Both AWS S3 and Azure Hadoop File System settings are included below.
+  # GCS with key file: mount host key file into container and set path env. GCP client libs expect
+  # GOOGLE_APPLICATION_CREDENTIALS to point at a key file path (not inline JSON). The bind mount is
+  # read-only and reflects the host file; no copy is made.
+  GCS_USE_KEYFILE=""
+  if [ "$CLOUD_PLATFORM" = "gcp" ] && [ -n "$GOOGLE_APPLICATION_CREDENTIALS" ] && [ -f "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+    GCS_USE_KEYFILE=1
+  fi
+
+  # Both AWS S3, Azure and GCS Hadoop File System settings are included below.
   # Only the settings relevant to the chosen log directory (spark.history.fs.logDirectory) will be used by Spark History Server.
-  docker run -itd --name $CONTAINER_NAME -e SPARK_DAEMON_MEMORY="2g" -e SPARK_DAEMON_JAVA_OPTS="-XX:+UseG1GC" -e SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS \
+  docker run -itd --name "$CONTAINER_NAME" -e SPARK_DAEMON_MEMORY="2g" -e SPARK_DAEMON_JAVA_OPTS="-XX:+UseG1GC" -e SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS \
   -Dspark.history.fs.logDirectory=$LOG_DIR \
   -Dspark.hadoop.fs.s3a.access.key=$AWS_ACCESS_KEY_ID \
   -Dspark.hadoop.fs.s3a.secret.key=$AWS_SECRET_ACCESS_KEY \
@@ -84,8 +104,11 @@ do_start(){
   -Dspark.hadoop.fs.azure.account.oauth2.client.id.$AZURE_STORAGE_ACCOUNT.dfs.core.windows.net=$AZURE_CLIENT_ID \
   -Dspark.hadoop.fs.azure.account.oauth2.client.secret.$AZURE_STORAGE_ACCOUNT.dfs.core.windows.net=$AZURE_CLIENT_SECRET \
   -Dspark.hadoop.fs.azure.account.oauth2.client.endpoint.$AZURE_STORAGE_ACCOUNT.dfs.core.windows.net=https://login.microsoftonline.com/$AZURE_TENANT_ID/oauth2/token \
+  -Dspark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem \
+  -Dspark.hadoop.fs.AbstractFileSystem.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS \
   -Dspark.history.ui.port=$PORT" \
-  -p $PORT:$PORT $DOCKER_IMAGE "/opt/spark/bin/spark-class $CLASS"
+  ${GCS_USE_KEYFILE:+-v "$GOOGLE_APPLICATION_CREDENTIALS:/opt/gcp-credentials.json:ro" -e GOOGLE_APPLICATION_CREDENTIALS=/opt/gcp-credentials.json} \
+  -p "$PORT:$PORT" "$DOCKER_IMAGE" "/opt/spark/bin/spark-class $CLASS"
   sleep 10
   echo "Spark History Server running @ http://localhost:$PORT "
   echo
@@ -103,7 +126,7 @@ do_status(){
   docker ps --filter "name=$CONTAINER_NAME"
 }
 
-# ENTER AWS OR AZURE CREDENTIALS TO RUN THE DOCKER IMAGE LOCALLY
+# ENTER AWS, AZURE OR GCP CREDENTIALS TO RUN THE DOCKER IMAGE LOCALLY
 while [ $# -gt 0 ]; do
   case "$1" in
     start|stop|restart|status|help)
@@ -171,6 +194,14 @@ while [ $# -gt 0 ]; do
       ;;
     --azure-event-logs-path|--AZURE_EVENT_LOGS_PATH)
       AZURE_EVENT_LOGS_PATH="$2"
+      shift
+      ;;
+    --gcs-bucket|--GCS_BUCKET)
+      GCS_BUCKET="$2"
+      shift
+      ;;
+    --gcs-event-logs-path|--GCS_EVENT_LOGS_PATH)
+      GCS_EVENT_LOGS_PATH="$2"
       shift
       ;;
     *)

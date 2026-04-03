@@ -121,6 +121,63 @@ tests:
               spark.hadoop.fs.s3a.max.total.tasks=100
               spark.hadoop.fs.s3a.connection.establish.timeout=10000
               spark.hadoop.fs.s3a.connection.timeout=20000
+  - it: should provide the correct GCS configuration
+    set:
+      image:
+        tag: not-used
+      logStore:
+        type: gcs
+        gcs:
+          bucket: my-gcs-bucket
+          eventLogsPath: spark-events/
+          gcpServiceAccount: ""
+    asserts:
+      - equal:
+          path: data
+          value:
+            log4j2.properties: |-
+              rootLogger.level = info
+              rootLogger.appenderRef.stdout.ref = console
+              appender.console.type = Console
+              appender.console.name = console
+              appender.console.target = SYSTEM_ERR
+              appender.console.layout.type = PatternLayout
+              appender.console.layout.pattern = %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n%ex
+
+              logger.spark.name = org.apache.spark
+              logger.spark.level = INFO
+              logger.hadoop.name = org.apache.hadoop
+              logger.hadoop.level = INFO
+              logger.s3a.name = org.apache.hadoop.fs.s3a
+              logger.s3a.level = INFO
+              logger.history.name = org.apache.spark.deploy.history.FsHistoryProvider
+              logger.history.level = INFO
+            spark-defaults.conf: |-
+              spark.history.fs.logDirectory=gs://my-gcs-bucket/spark-events/
+              spark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem
+              spark.hadoop.fs.AbstractFileSystem.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS
+              spark.history.fs.update.interval=10s
+              spark.history.fs.numReplayThreads=4
+              spark.history.fs.cleaner.enabled=false
+              spark.history.fs.cleaner.interval=1d
+              spark.history.fs.cleaner.maxAge=7d
+              spark.history.fs.cleaner.maxNum=2147483647
+              spark.history.fs.endEventReparseChunkSize=1m
+              spark.history.fs.inProgressOptimization.enabled=true
+              spark.history.fs.driverlog.cleaner.enabled=false
+              spark.history.fs.driverlog.cleaner.interval=1d
+              spark.history.fs.driverlog.cleaner.maxAge=7d
+              spark.history.fs.eventLog.rolling.maxFilesToRetain=2147483647
+              spark.history.ui.maxApplications=2147483647
+              spark.history.retainedApplications=50
+              spark.history.ui.port=18080
+
+              # Storage backend optimizations for S3/ABFS (non-conflicting settings)
+              spark.hadoop.fs.s3a.connection.maximum=200
+              spark.hadoop.fs.s3a.threads.max=50
+              spark.hadoop.fs.s3a.max.total.tasks=100
+              spark.hadoop.fs.s3a.connection.establish.timeout=10000
+              spark.hadoop.fs.s3a.connection.timeout=20000
   - it: should include custom spark configuration if provided
     set:
       image:

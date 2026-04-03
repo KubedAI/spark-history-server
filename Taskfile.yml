@@ -11,6 +11,16 @@ vars:
   KUBECONFIG_PATH: ./kubeconfig.yaml
 
 tasks:
+  install-tools:
+    desc: Install dependencies (Helm, Kind, helm-unittest plugin) for development
+    cmds:
+      - task: install-helm
+      - task: install-kind
+      - "{{.BIN_DIR}}/helm plugin install https://github.com/helm-unittest/helm-unittest.git || true"
+    status:
+      - test -f {{.BIN_DIR}}/helm
+      - test -f {{.BIN_DIR}}/kind
+
   unittest:
     desc: Run Helm unit tests for spark-history-server
     interactive: true

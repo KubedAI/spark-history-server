@@ -175,8 +175,8 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["s3", "abfs", "local"],
-          "errorMessage": "logStore.type must be either 's3', 'abfs', or 'local'."
+          "enum": ["s3", "abfs", "gcs", "local"],
+          "errorMessage": "logStore.type must be either 's3', 'abfs', 'gcs', or 'local'."
         },
         "s3": {
           "type": "object",
@@ -201,6 +201,14 @@
           "type": "object",
           "properties": {
             "directory": { "type": "string" }
+          }
+        },
+        "gcs": {
+          "type": "object",
+          "properties": {
+            "bucket": { "type": "string" },
+            "eventLogsPath": { "type": "string" },
+            "gcpServiceAccount": { "type": "string" }
           }
         }
       },
@@ -309,6 +317,39 @@
         },
         {
           "if": {
+            "properties": { "type": { "const": "gcs" } }
+          },
+          "then": {
+            "required": ["gcs"],
+            "properties": {
+              "gcs": {
+                "type": "object",
+                "properties": {
+                  "bucket": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.gcs.bucket must be set to a real value, not a placeholder."
+                  },
+                  "eventLogsPath": {
+                    "type": "string",
+                    "not": { "pattern": "^<.*>$" },
+                    "errorMessage": "logStore.gcs.eventLogsPath must be set to a real value, not a placeholder."
+                  },
+                  "gcpServiceAccount": { "type": "string" }
+                },
+                "required": ["bucket", "eventLogsPath"],
+                "errorMessage": {
+                  "required": {
+                    "bucket": "logStore.gcs.bucket is required when logStore.type is 'gcs'.",
+                    "eventLogsPath": "logStore.gcs.eventLogsPath is required when logStore.type is 'gcs'."
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
             "properties": { "type": { "const": "local" } }
           },
           "then": {
@@ -336,7 +377,7 @@
       ],
       "errorMessage": {
         "required": {
-          "type": "logStore.type is required and must be either 's3' or 'abfs'."
+          "type": "logStore.type is required and must be one of 's3', 'abfs', 'gcs', or 'local'."
         }
       }
     },
