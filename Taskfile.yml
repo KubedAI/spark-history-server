@@ -5,6 +5,8 @@ silent: true
 vars:
   HELM_VERSION: v3.18.3
   KIND_VERSION: v0.29.0
+  IMAGE_NAME: spark-history-server
+  ICEBERG_VERSION: 1.10.1
   OS: '{{OS}}'
   ARCH: '{{ARCH}}'
   BIN_DIR: .bin
@@ -130,11 +132,31 @@ tasks:
     desc: Build Docker image locally
     vars:
       CLOUD_PLATFORM: '{{.CLOUD_PLATFORM | default "aws"}}'
-      VERSION: local
+      SPARK_VERSION: '{{.SPARK_VERSION | default "3.5.7"}}'
+      TAG: '{{.TAG | default (printf "%s:%s-local" .IMAGE_NAME .CLOUD_PLATFORM)}}'
     cmds:
-      - echo "Building Docker image for {{.CLOUD_PLATFORM}} platform, version {{.VERSION}}"
-      - docker build -t spark-history-server:{{.CLOUD_PLATFORM}}-{{.VERSION}} 
+      - echo "Building Docker image {{.TAG}} ({{.CLOUD_PLATFORM}}, Spark {{.SPARK_VERSION}}, Iceberg {{.ICEBERG_VERSION}})"
+      - docker build -t {{.TAG}} 
         --build-arg CLOUD_PLATFORM={{.CLOUD_PLATFORM}} 
+        --build-arg SPARK_VERSION={{.SPARK_VERSION}} 
+        --build-arg ICEBERG_VERSION={{.ICEBERG_VERSION}} 
+        ./docker
+
+  build-docker-multiarch:
+    desc: Build and push multi-architecture Docker image (amd64 + arm64)
+    vars:
+      CLOUD_PLATFORM: '{{.CLOUD_PLATFORM | default "aws"}}'
+      SPARK_VERSION: '{{.SPARK_VERSION | default "3.5.7"}}'
+      PLATFORMS: '{{.PLATFORMS | default "linux/amd64,linux/arm64"}}'
+      TAG: '{{.TAG | default (printf "%s:%s-local" .IMAGE_NAME .CLOUD_PLATFORM)}}'
+    cmds:
+      - echo "Building and pushing multi-arch Docker image {{.TAG}} ({{.CLOUD_PLATFORM}}, Spark {{.SPARK_VERSION}}, Iceberg {{.ICEBERG_VERSION}}, {{.PLATFORMS}})"
+      - docker buildx build --platform {{.PLATFORMS}} 
+        -t {{.TAG}} 
+        --build-arg CLOUD_PLATFORM={{.CLOUD_PLATFORM}} 
+        --build-arg SPARK_VERSION={{.SPARK_VERSION}} 
+        --build-arg ICEBERG_VERSION={{.ICEBERG_VERSION}} 
+        --push 
         ./docker
   
   install-chart:
