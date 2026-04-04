@@ -57,6 +57,19 @@ RUN GROUP_IDS="org.apache.hadoop,software.amazon.awssdk,com.amazonaws" && \
     if [ "$CLOUD_PLATFORM" = "gcp" ]; then GROUP_IDS="$GROUP_IDS,com.google.cloud.bigdataoss"; fi && \
     mvn -P${CLOUD_PLATFORM}-spark${SPARK_VERSION} dependency:copy-dependencies -DincludeGroupIds="$GROUP_IDS" -DoutputDirectory=/opt/spark/jars/
 
+# --- Add Iceberg Dependencies ---
+# Required for the History Server to deserialize custom Iceberg metrics from event logs.
+# Determines Scala binary version based on Spark version (3.x uses 2.12, 4.x uses 2.13)
+# Note: Iceberg does not yet publish a 4.1 runtime; Spark 4.1 uses the 4.0 artifact.
+ARG ICEBERG_VERSION=1.10.1
+RUN case "$SPARK_VERSION" in \
+      3.*) SCALA_BINARY=2.12; SPARK_MAJOR=3.5 ;; \
+      4.0.*) SCALA_BINARY=2.13; SPARK_MAJOR=4.0 ;; \
+      4.1.*) SCALA_BINARY=2.13; SPARK_MAJOR=4.0 ;; \
+    esac && \
+    curl -fsSL -o /opt/spark/jars/iceberg-spark-runtime-${SPARK_MAJOR}_${SCALA_BINARY}-${ICEBERG_VERSION}.jar \
+      https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-${SPARK_MAJOR}_${SCALA_BINARY}/${ICEBERG_VERSION}/iceberg-spark-runtime-${SPARK_MAJOR}_${SCALA_BINARY}-${ICEBERG_VERSION}.jar
+
 # --- Configure Non-Root User ---
 # Create logs directory and register user in /etc/passwd (required by JVM tools)
 RUN mkdir -p /opt/spark/logs && \
